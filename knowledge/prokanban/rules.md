@@ -37,11 +37,33 @@ These are seeded from expert knowledge (licensed ProKanban.org trainer). Axiomat
 
 ## Flow signals
 
-- WIP age is the primary flow signal. Older unblocked items get priority.
+- **Work item age is the single most important aspect of Kanban.** Not WIP limits, not visualisation, not throughput. The only question: are items aging unnecessarily? All other practices derive from this. (Ref: Kanban Pocket Guide, Ch. 1)
+  - source: seeded
+- WIP limits exist to prevent unnecessary aging. If WIP is within limits but items are still aging past the SLE, the limits aren't working. Tighten them or change the policies.
   - source: seeded
 - SLE for initiatives: 5 days in Now, 80% of the time. Approaching SLE triggers escalation and investigation.
   - source: seeded
 - High age on a card signals a system-level flow problem. Investigate before pulling new work.
+  - source: seeded
+
+## Age-based intervention triggers
+
+- Use SLE percentiles as intervention triggers. As items age, the probability of missing the SLE increases, and actions must escalate accordingly:
+  - **50th percentile**: investigate. Is it blocked? Too big? Needs a different approach? Chance of SLE breach has doubled.
+  - **70th percentile**: escalate. Tag the PO. Recommend swarming, breaking down, or unblocking. Coin-flip chance of missing SLE.
+  - **85th percentile (SLE)**: alert with urgency. This item needs immediate attention.
+  - **Beyond SLE**: persistent daily follow-up. Do not let this fade.
+  - source: seeded (Kanban Pocket Guide, Ch. 2)
+
+## Right-sizing
+
+- If an item is aging, the most likely cause is that it's too big. Right-sizing is the first response to aging. (Ref: Kanban Pocket Guide, Ch. 3)
+  - source: seeded
+- Before pulling an item from Ready: "Can this finish within the SLE based on what we know now?" If not, break it down first.
+  - source: seeded
+- Strategies for breaking down work items: acceptance criteria splitting, conjunction splitting ("and"/"or" in titles = multiple items), generic term splitting (make vague terms specific), optimise now vs later (simplest valuable version first).
+  - source: seeded (Kanban Pocket Guide, Ch. 3)
+- Items that are too big hide WIP. A card with 5 acceptance criteria is effectively 5 cards at WIP 1. Make the actual WIP visible by breaking work into individually deliverable pieces.
   - source: seeded
 
 ## Housekeeping

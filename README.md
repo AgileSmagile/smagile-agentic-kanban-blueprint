@@ -30,7 +30,8 @@ Once the ideas make sense, the implementation guide walks you through setup step
 1. **[Getting started](docs/getting-started.md)** is the step-by-step guide to adapting this for your own setup
 2. **[Tools and stack](TOOLS.md)** covers every tool used in the system, what it does, whether it has a free tier, and how it fits in
 3. **[Hardware and self-hosting](docs/hardware.md)** covers running this on your own hardware (including a Raspberry Pi) instead of paying for cloud hosting
-4. **[Cross-runtime compatibility](docs/cross-runtime.md)** explains how the same files work across different AI agent platforms simultaneously
+4. **[Flow Guardian pattern](docs/flow-guardian.md)** explains how to build an agent that monitors flow health, nudges for action on aging items, and flags when your processes are impeding the system
+5. **[Cross-runtime compatibility](docs/cross-runtime.md)** explains how the same files work across different AI agent platforms simultaneously
 
 ### "I want to browse the actual files"
 
@@ -41,7 +42,7 @@ The working configuration files are in these folders:
 | [`orchestrator/`](orchestrator/) | The main AI agent's instructions and operating rules | This is what tells the AI how to behave, what it can and can't do, and how to use the board |
 | [`orchestrator/bin/`](orchestrator/bin/) | A command-line tool for interacting with the Kanban board | A script that lets AI agents create cards, move them, add comments, and check what's in progress |
 | [`knowledge/`](knowledge/) | The learning system: rules, hypotheses, and observations | Where the AI stores what it's learned, organised by topic, with a process for promoting guesses to confirmed rules |
-| [`personas/`](personas/) | Identity files for different AI agent roles | Each agent has a "soul" (who it is, its values) and "instructions" (what it does, its constraints) |
+| [`personas/`](personas/) | Identity files for different AI agent roles | Includes lead agent, autonomous agent, and flow guardian. Each has a "soul" (identity, values) and "instructions" (responsibilities, constraints). |
 | [`workspace/`](workspace/) | Configuration for a focused helper workspace | How a secondary AI assistant connects back to the main system |
 | [`docs/`](docs/) | Guides and explanations | The human-readable documentation you're reading now |
 

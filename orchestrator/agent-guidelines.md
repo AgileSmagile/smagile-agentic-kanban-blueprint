@@ -89,7 +89,9 @@ This is a minimum spec, not a template to fill robotically. A one-liner is fine 
 
 ### WIP age
 
-WIP age is a core flow signal. Run `board-cli wip-age` on session start and when making prioritisation decisions.
+**Work item age is the single most important aspect of Kanban** (ref: [Kanban Pocket Guide](https://prokanban.org/kanban-pocket-guide/)). Not WIP limits, not visualisation, not throughput. The only question: are items aging unnecessarily? All other practices exist to prevent unnecessary aging.
+
+Run `board-cli wip-age` on session start and when making prioritisation decisions.
 
 - **Initiatives**: start = transition into Now. End = transition to Done.
 - **Cards**: start = transition into Doing. End = transition to Shipped/Live or Closed. Cards in Done or VR continue accumulating WIP age — age measures total elapsed time since starting, not time in the current column.
@@ -101,6 +103,29 @@ WIP age is a core flow signal. Run `board-cli wip-age` on session start and when
 
 - **Initiatives**: 5 days or less, 80% of the time (measured from Now entry to Done).
 - When an initiative approaches the SLE, escalate: flag it, investigate what is blocking flow, and take action to finish or unblock it. An initiative ageing past the SLE is a system-level problem, not just a scheduling inconvenience.
+
+### Age-based intervention triggers
+
+Use SLE percentiles as escalation triggers. As items age, the probability of missing the SLE increases. Actions must escalate accordingly:
+
+| Item age reaches | Meaning | Action |
+|-----------------|---------|--------|
+| **50th percentile** | Larger than half of all previous items. SLE breach probability doubled. | **Investigate.** Comment on card: is it blocked? Too big? Needs swarming? |
+| **70th percentile** | Coin-flip chance of missing SLE. | **Escalate.** Tag PO. Recommend: swarm, break down, or unblock. |
+| **85th percentile (SLE)** | SLE reached. | **Alert.** PO with urgency. Immediate attention needed. |
+| **Beyond SLE** | In violation. Every day compounds risk. | **Persistent follow-up.** Daily card comments. Daily status mentions. |
+
+### Right-sizing
+
+If an item is aging, the most likely cause is that it's too big. Before pulling from Ready, ask: "Can this finish within the SLE based on what we know now?" If not, break it down first.
+
+Strategies for breaking down oversized items:
+- **Acceptance criteria splitting**: each AC as a separate deliverable
+- **Conjunction splitting**: "and" / "or" in card titles = multiple items
+- **Generic term splitting**: make vague requirements specific and independently testable
+- **Optimise now vs later**: ship the simplest valuable version first, iterate
+
+An item with 5 acceptance criteria is effectively 5 items at WIP 1. Make the actual WIP visible.
 
 ### Blocked items policy
 
