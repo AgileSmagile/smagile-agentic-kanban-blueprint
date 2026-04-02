@@ -104,12 +104,22 @@ Every tool here was chosen because it solved a real problem in the system. This 
 
 ## Deployment
 
+### Self-hosting (Raspberry Pi / mini PC)
+
+**Role in the system:** Production hosting for web applications, agents, and automation. A Raspberry Pi 5 or equivalent runs Docker containers behind a Cloudflare Tunnel, providing a zero-cost compute layer after the initial hardware purchase.
+
+**Why this and not cloud platforms:** No monthly compute costs. No commercial use restrictions. No platform lock-in. A Pi 5 (8GB, ~£115 all-in) comfortably runs a Next.js app, an AI agent, n8n, and nginx concurrently. Year 2+ cost is effectively zero (electricity only).
+
+**When to consider this:** if you want to commercialise a product without recurring hosting costs, if you have suitable hardware available, or if you want full control over your infrastructure. Not suitable if you need global distribution, five-nines uptime, or don't want to learn Docker and networking basics.
+
+**Get started:** [docs/hardware.md](docs/hardware.md) covers hardware options, network isolation, Docker setup, zero-downtime deploys, and a cost comparison against cloud hosting.
+
 ### Netlify
 <!-- affiliate: netlify -->
 
 **Role in the system:** Static site and serverless function hosting. Used for deploying web products and landing pages. Agents can trigger deploys via API or CLI.
 
-**Why this and not alternatives:** Git-based deploys, preview deployments on PRs, generous free tier. Simple for static sites and Jamstack applications.
+**Why this and not alternatives:** Git-based deploys, preview deployments on PRs, generous free tier. Simple for static sites and Jamstack applications. **No commercial use restriction on the free tier**, unlike Vercel.
 
 **Free tier:** Yes. 100GB bandwidth, 300 build minutes/month, 1 concurrent build. Enough for most small-to-medium sites.
 
@@ -117,11 +127,13 @@ Every tool here was chosen because it solved a real problem in the system. This 
 
 ### Vercel
 
-**Role in the system:** Alternative deployment platform, particularly for Next.js applications. Preview deployments on every PR provide a pre-production smoke test.
+**Role in the system:** Development and preview platform, particularly for Next.js applications. Preview deployments on every PR provide a pre-production smoke test.
 
-**Why this and not alternatives:** Best-in-class Next.js support. Preview deployments are automatic. Note: the hobby plan prohibits commercial use, which drove a move to self-hosting for production workloads.
+**Why this and not alternatives:** Best-in-class Next.js support. Preview deployments are automatic.
 
-**Free tier:** Yes (hobby plan). Be aware of the commercial use restriction on the free tier.
+**Commercial use warning:** The hobby (free) plan **prohibits commercial use**. If you're building a product you intend to charge for, you need the Pro plan ($20/month per team member) or a different hosting solution. This restriction drove a move to self-hosting in the production system this blueprint was extracted from. Consider Netlify (no commercial restriction on free tier) or self-hosting (see [docs/hardware.md](docs/hardware.md)) as alternatives for production workloads.
+
+**Free tier:** Yes (hobby plan), but restricted to non-commercial use.
 
 **Get started:** [vercel.com](https://vercel.com)
 
@@ -202,6 +214,7 @@ For a solo operator getting started:
 | Component | Monthly cost |
 |-----------|-------------|
 | Claude Pro (for Claude Code) | $20 |
+| Hosting (self-hosted Pi 5) | ~£115 one-time, then ~£1/month electricity |
 | Supabase (free tier) | $0 |
 | Cloudflare (free tier) | $0 |
 | n8n (self-hosted) | $0 |
@@ -212,6 +225,9 @@ For a solo operator getting started:
 | GitHub (free tier) | $0 |
 | Stripe (transaction-based) | $0 until revenue |
 | **Kanban board** | **$0-179+** |
-| **Total** | **~$20 + board** |
+| **Total (month 1)** | **~$20 + ~£115 hardware + board** |
+| **Total (month 2+)** | **~$20 + board** |
 
 The Kanban board is the variable. You can start with a free tool (Trello, GitHub Projects) and the patterns still apply. The board CLI would need adapting, but the operating model doesn't change.
+
+Self-hosting eliminates recurring compute costs entirely after the initial hardware purchase. See [docs/hardware.md](docs/hardware.md) for the full cost comparison and setup guide. If you'd rather use cloud hosting, replace the Pi line with Vercel Pro ($20/month) or equivalent; the rest of the stack stays the same.

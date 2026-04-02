@@ -20,7 +20,7 @@ This repo contains redacted versions of the actual configuration files, persona 
 | [`knowledge/`](knowledge/) | The compounding knowledge system: domain-based rules, hypotheses, observations, and an inbox pattern for multi-agent contribution |
 | [`personas/`](personas/) | Identity and instruction files for different agent roles (lead advisor, autonomous revenue agent) |
 | [`workspace/`](workspace/) | Satellite workspace config showing how focused agents relate to the orchestrator |
-| [`docs/`](docs/) | Human-readable guides: architecture, knowledge system, security model, cross-runtime compatibility, getting started |
+| [`docs/`](docs/) | Human-readable guides: architecture, knowledge system, security, hardware/self-hosting, cross-runtime, getting started |
 | [`TOOLS.md`](TOOLS.md) | The full stack with what each tool does, free tier availability, and setup notes |
 
 ## The core ideas
