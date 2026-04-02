@@ -41,8 +41,12 @@ These are seeded from expert knowledge (licensed ProKanban.org trainer). Axiomat
   - source: seeded
 - WIP limits exist to prevent unnecessary aging. If WIP is within limits but items are still aging past the SLE, the limits aren't working. Tighten them or change the policies.
   - source: seeded
-- SLE for initiatives: 5 days in Now, 80% of the time. Approaching SLE triggers escalation and investigation.
+- **Initiatives need a declared SLE, set upfront.** If no historical data exists, guess. A wrong SLE that gets refined is better than no SLE. Recalibrate once you have 10+ completed initiatives, or after any significant process change. In an agentic system, card-level cycle times are typically short enough that a formal card SLE adds noise; the initiative SLE is where flow discipline matters.
+  - source: seeded (Kanban Pocket Guide, Ch. 2)
+- SLE for initiatives: 5 days in Now, 85th percentile. Approaching SLE triggers escalation and investigation.
   - source: seeded
+- **The initiative SLE is a right-sizing guard rail.** Before pulling an initiative from Next into Now: "Can this complete within the SLE?" If not, break it down first. Strategies: slice by outcome, slice by risk (known vs discovery), slice by dependency (blocked vs unblocked). An oversized initiative in Now will age past SLE, block other initiatives, and compress the planning horizon.
+  - source: seeded (Kanban Pocket Guide, Ch. 3)
 - High age on a card signals a system-level flow problem. Investigate before pulling new work.
   - source: seeded
 

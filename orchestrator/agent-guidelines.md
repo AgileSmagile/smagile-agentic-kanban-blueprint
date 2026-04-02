@@ -97,12 +97,32 @@ Run `board-cli wip-age` on session start and when making prioritisation decision
 - **Cards**: start = transition into Doing. End = transition to Shipped/Live or Closed. Cards in Done or VR continue accumulating WIP age — age measures total elapsed time since starting, not time in the current column.
 - **Older items get priority.** When choosing what to work on, favour the oldest unblocked item. High age signals a flow problem — investigate and resolve before pulling new work.
 
-### Service Level Expectation (SLE)
+### Service Level Expectations (SLEs)
 
-<!-- Set your own SLE based on observed throughput -->
+Every workflow level needs an SLE. The SLE is a probabilistic forecast: "X% of items will finish in Y days or less." It drives the age-based intervention triggers, right-sizing decisions, and flow health monitoring. Without a declared SLE, the percentile triggers have nothing to calculate against.
 
-- **Initiatives**: 5 days or less, 80% of the time (measured from Now entry to Done).
-- When an initiative approaches the SLE, escalate: flag it, investigate what is blocking flow, and take action to finish or unblock it. An initiative ageing past the SLE is a system-level problem, not just a scheduling inconvenience.
+**Set SLEs upfront, even as guesses.** If you have no historical data, make your best estimate. The Kanban Pocket Guide is explicit: "If historical cycle time data does not exist, a best guess will do until there is enough historical data for a proper SLE calculation." A wrong SLE that gets refined is infinitely more useful than no SLE at all.
+
+**Recalibrate from data.** Once you have 10+ completed items at a given level, calculate your actual 85th percentile cycle time and update the SLE. Recalibrate whenever you make a significant process change (WIP limit adjustment, workflow restructure, policy change). The old data from before the change is no longer representative.
+
+<!-- Replace the example values below with your own -->
+
+| Workflow level | SLE | Percentile | Measured from |
+|---------------|-----|-----------|---------------|
+| **Initiatives** (epics, features) | 5 days or less | 85th percentile | Now entry → Done |
+
+In an agentic system, card-level cycle times are typically short enough that a formal card SLE adds more noise than signal. The initiative SLE is where flow discipline matters most: initiatives that are too big sit in Now eating WIP and blocking strategic flow.
+
+**The initiative SLE is also a right-sizing guard rail.** Before pulling an initiative from Next into Now, ask: "Can this initiative realistically complete within the SLE based on what we know?" If the answer is no, it needs to be broken down into smaller initiatives before it enters Now. An oversized initiative in Now will age past its SLE, block other initiatives from entering, and compress the strategic planning horizon. Break it down first.
+
+Right-sizing strategies for initiatives:
+- **Slice by outcome.** If an initiative delivers value to multiple audiences or solves multiple problems, each outcome is a candidate for its own initiative.
+- **Slice by risk.** Separate the part you understand from the part that needs discovery. Ship the known part; run the discovery as its own initiative.
+- **Slice by dependency.** If one part is blocked on external input and another isn't, split them. Don't let the blocked half age the whole initiative.
+
+**Visualise the SLE on the board.** If your board tool supports it, display the SLE and percentile lines. Every agent and the PO should be able to see at a glance which initiatives are approaching or past their SLE.
+
+- When an initiative approaches its SLE, escalate: flag it, investigate what is blocking flow, and take action to finish or unblock it. An initiative ageing past the SLE is a system-level problem, not just a scheduling inconvenience.
 
 ### Age-based intervention triggers
 
