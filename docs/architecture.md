@@ -7,30 +7,30 @@ This is a multi-orchestrator model with shared global resources. There is no sin
 The Kanban board and the knowledge system are the coordination layers. They don't belong to any single orchestrator; they belong to the system.
 
 ```
-                    ┌─────────────────────────────────────────────┐
-                    │              Shared Resources               │
-                    │                                             │
-                    │  ┌──────────────┐  ┌─────────────────────┐  │
-                    │  │ Kanban Board  │  │  Knowledge System   │  │
-                    │  │ (source of   │  │  (rules, hypotheses │  │
-                    │  │   truth)     │  │   inbox, domains)   │  │
-                    │  └──────┬───────┘  └──────────┬──────────┘  │
-                    │         │                     │              │
-                    │  ┌──────┴─────────────────────┴──────┐      │
-                    │  │  Secrets (pass), Board CLI, .env   │      │
-                    │  └───────────────────────────────────┘      │
-                    └──────────┬──────────────┬──────────────┬────┘
-                               │              │              │
-              ┌────────────────┴───┐   ┌──────┴──────┐  ┌───┴────────────┐
-              │  CC Orchestrator   │   │  Clawdius   │  │  Other         │
-              │  (Claude Code,     │   │  (OpenClaw, │  │  Orchestrators │
-              │   local machine)   │   │   Pi 5,     │  │  (future /     │
-              │                    │   │   Discord)  │  │   special      │
-              │  Dispatches:       │   │             │  │   purpose)     │
-              │  ├─ Product Agent  │   │  Advisory,  │  │                │
-              │  ├─ Website Agent  │   │  research,  │  └────────────────┘
-              │  └─ Research Agent │   │  board mgmt │
-              └────────────────────┘   └─────────────┘
+                ┌───────────────────────────────────────────────────┐
+                │                 Shared Resources                  │
+                │                                                   │
+                │  ┌────────────────┐  ┌─────────────────────────┐  │
+                │  │  Kanban Board   │  │    Knowledge System     │  │
+                │  │  (source of     │  │  (rules, hypotheses,    │  │
+                │  │   truth)        │  │   inbox, domains)       │  │
+                │  └───────┬────────┘  └───────────┬─────────────┘  │
+                │          │                       │                │
+                │  ┌───────┴───────────────────────┴─────────────┐  │
+                │  │     Secrets (pass), Board CLI, Memory        │  │
+                │  └─────────────────────────────────────────────┘  │
+                └─────────┬───────────────┬───────────────┬─────────┘
+                          │               │               │
+         ┌────────────────┴───┐   ┌───────┴───────┐  ┌───┴────────────┐
+         │  CC Orchestrator   │   │   Clawdius    │  │  Autonomous    │
+         │  (Claude Code,     │   │   (OpenClaw,  │  │  Agents        │
+         │   local machine)   │   │    Pi 5,      │  │  (own board,   │
+         │                    │   │    Discord)   │  │   own secrets, │
+         │  Dispatches:       │   │               │  │   own scope)   │
+         │  ├─ Product Agent  │   │  Advisory,    │  │                │
+         │  ├─ Website Agent  │   │  research,    │  │  May share     │
+         │  └─ Research Agent │   │  board mgmt   │  │  knowledge     │
+         └────────────────────┘   └───────────────┘  └────────────────┘
 ```
 
 ## The key insight: orchestrators, not an orchestrator
@@ -57,6 +57,8 @@ Each orchestrator has its own persona, its own area of focus, and its own runtim
 - **The same codebase** (git repos)
 
 No orchestrator owns the board. No orchestrator owns the knowledge system. These are shared infrastructure that any orchestrator (or sub-agent) can read from and write to.
+
+**Exception: autonomous agents.** An agent with its own mandate (e.g. an autonomous revenue experiment) may have its own board, its own secrets store, and its own scope entirely. It shares the knowledge system and communication channels (so it can learn from and coordinate with the team) but its operational infrastructure is separate. This is deliberate: autonomy means owning your own resources, not borrowing someone else's.
 
 ## How coordination works without a single coordinator
 
@@ -175,12 +177,21 @@ This is one possible infrastructure shape. The multi-orchestrator pattern works 
 
 Security is covered in depth in [security.md](security.md). The key architectural points:
 
+### Shared Memory
+
+Beyond the knowledge system (which is explicit and structured), orchestrators and agents may share memory files: auto-generated notes, session handoffs, and project context that persists across conversations.
+
+- **Memory files are shared by default.** Any orchestrator or agent can read memory written by another. This is how context about user preferences, project decisions, and working practices propagates across the team.
+- **Memory is context, not authority.** Memory records can become stale. Agents should verify memory against current state (read the code, check the board) before acting on it. If a memory conflicts with what's observed now, trust the observation and update the memory.
+- **Autonomous agents may maintain separate memory.** An agent with its own scope writes to its own memory store. It reads from the shared knowledge system but doesn't pollute shared memory with its operational state.
+
 ### Secrets
 
 - All secrets in a single encrypted store (`pass`, GPG-backed)
 - Agents reference secrets by variable name, never by value
-- `.env` files are runtime artefacts populated by a sync script, not the source of truth
+- `.env` files are runtime artefacts, not the source of truth
 - The secrets store is accessible to all orchestrators and agents via the same CLI
+- Autonomous agents may have their own isolated secrets store (separate `pass` instance), giving them access to their own credentials without access to the team's
 
 ### Agent Autonomy
 

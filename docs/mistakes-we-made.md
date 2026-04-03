@@ -23,10 +23,10 @@ These are real failures from the production system this blueprint was extracted 
 **Why it happened:** Nothing in the system prevented it. The board had no concept of "this card is claimed by a specific session." Opening two terminals felt natural.
 
 **Fix forward:**
-- Established a clear rule: one orchestrator session per board at any time
-- Orchestrators dispatch sub-agents to project directories for parallel work; the orchestrator itself is singular
+- Established a clear rule: one orchestrator session per board scope at any time. Multiple orchestrators can coexist if each owns a different scope (see [architecture.md](architecture.md))
+- Each orchestrator dispatches sub-agents to project directories for parallel work; the parallelism is in sub-agents, not in multiple orchestrators hitting the same cards
 - Added a board-watcher that detects conflicting moves and alerts when two sessions touch the same card
-- Documented the multi-orchestrator architecture (each orchestrator owns a different scope) for cases where parallel orchestration is genuinely needed
+- Documented the multi-orchestrator architecture for cases where parallel orchestration is genuinely needed, with each orchestrator owning a distinct area of focus
 
 **The lesson:** AI agents will happily work in parallel on the same thing if nothing stops them. Coordination must be explicit, not assumed.
 
