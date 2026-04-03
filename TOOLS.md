@@ -1,6 +1,23 @@
 # Tools and Stack
 
-Every tool here was chosen because it solved a real problem in the system. This isn't a recommendation list; it's what we actually use and why. Most have generous free tiers, so you can replicate the setup without upfront cost.
+## Before you read: what you actually need vs. what's optional
+
+| Component | Required? | Cost | Notes |
+|-----------|-----------|------|-------|
+| AI agent (Claude Code or similar) | **Yes** | $20/month | The engine that does the work |
+| Kanban board with an API | **Yes** | $0-179/month | Free options work (Trello, GitHub Projects). Paid tools have better Kanban features |
+| Database (Supabase) | Only if building a product | $0 | Free tier is generous |
+| Networking (Cloudflare) | Only if self-hosting | $0 | Free tier covers everything you need |
+| Workflow automation (n8n) | No, add later | $0 | Self-hosted, free. Useful once you have multiple services to connect |
+| CRM (Capsule) | No | $0 | Only if you're doing outreach/lead gen |
+| Hardware (Raspberry Pi) | No | ~$115 one-time | Only if you self-host instead of using cloud |
+| Everything else below | No | $0 | Nice-to-haves with free tiers |
+
+**Minimum to start: $20/month** (AI subscription + free board tool). Everything else is optional and can be added as your system grows.
+
+---
+
+Every tool below was chosen because it solved a real problem in the system. This isn't a recommendation list; it's what we actually use and why.
 
 <!--
   AFFILIATE LINKS: Replace the URLs below with tracked affiliate/partner links

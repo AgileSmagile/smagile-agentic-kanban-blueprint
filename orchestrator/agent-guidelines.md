@@ -95,7 +95,7 @@ Run `board-cli wip-age` on session start and when making prioritisation decision
 
 - **Initiatives**: start = transition into Now. End = transition to Done.
 - **Cards**: start = transition into Doing. End = transition to Shipped/Live or Closed. Cards in Done or VR continue accumulating WIP age — age measures total elapsed time since starting, not time in the current column.
-- **Older items get priority.** When choosing what to work on, favour the oldest unblocked item. High age signals a flow problem — investigate and resolve before pulling new work.
+- **Older items get priority.** All in-progress work is treated as being of equal importance, with its age being the driver for prioritisation. When choosing what to work on, favour the oldest unblocked item. High age signals a flow problem — investigate and resolve before pulling new work.
 
 ### Service Level Expectations (SLEs)
 
@@ -104,6 +104,8 @@ Every workflow level needs an SLE. The SLE is a probabilistic forecast: "X% of i
 **Set SLEs upfront, even as guesses.** If you have no historical data, make your best estimate. The Kanban Pocket Guide is explicit: "If historical cycle time data does not exist, a best guess will do until there is enough historical data for a proper SLE calculation." A wrong SLE that gets refined is infinitely more useful than no SLE at all.
 
 **Recalibrate from data.** Once you have 10+ completed items at a given level, calculate your actual 85th percentile cycle time and update the SLE. Recalibrate whenever you make a significant process change (WIP limit adjustment, workflow restructure, policy change). The old data from before the change is no longer representative.
+
+**Note on SLE maturity:** A starting SLE set as a target (e.g. "5 days, 85th percentile") is not the same as an empirically-derived SLE calculated from historical cycle times. Both are valid; the former is a reasonable starting point for a system too young to have data. Replace your target SLE with a data-driven one once you have 15-20 completed items to measure against. Until then, treat the target as a hypothesis and adjust when the data tells you it's wrong.
 
 <!-- Replace the example values below with your own -->
 
@@ -153,6 +155,21 @@ An item with 5 acceptance criteria is effectively 5 items at WIP 1. Make the act
 - Use the board's native block functionality
 - Add a comment explaining why it's blocked and what's needed to unblock
 - Add a comment when unblocking explaining what changed
+
+### Dependencies and sequencing
+
+Dependencies between cards are managed through conversation and sequencing intelligence, not through formal dependency fields or tooling. Most board tools don't support dependency links via their API, and even where they do, the overhead of maintaining them rarely justifies the cost.
+
+**The PO owns prioritisation of initiatives and features.** The order initiatives enter Now and the order cards enter Ready is a product decision.
+
+**Agents own sequencing of the work that delivers those.** When an agent pulls a card, it should think about whether the card can actually be completed given the current state of the system. If card A needs an API that card B will create, the agent should either:
+- Sequence its own work: pull card B first, finish it, then pull card A
+- Flag the dependency: add a comment to card A ("Depends on card B; B must ship first for the API endpoint to exist") and pull something else
+- Push back: tell the PO "these two cards have a dependency; I recommend B before A"
+
+**Dependencies between features or initiatives should be surfaced in card descriptions.** When creating a card, note known dependencies: "Requires the auth middleware from card #X" or "Blocked until the Stripe integration ships." This gives agents the context to sequence intelligently without formal dependency tooling.
+
+The goal is agents that think about sequencing as part of pulling work, not a process layer that forces every card through a dependency check before it can start.
 
 ## Autonomy Boundaries
 

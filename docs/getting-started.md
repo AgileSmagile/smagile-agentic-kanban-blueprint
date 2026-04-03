@@ -1,17 +1,22 @@
 # Getting Started
 
-This guide walks you through adapting the blueprint for your own setup.
+You don't need to implement everything at once. Start with a board and one agent. Add the knowledge system after a few sessions. Add personas when you have distinct agent roles.
 
-You don't need to implement everything at once. Start with the board integration, add the knowledge system when you have enough sessions to justify it, and write persona files when you have distinct agent roles.
+Here's what the first hour looks like:
+
+1. **Pick a board tool and create columns** (10 mins)
+2. **Write a CLAUDE.md file** that tells the AI how to behave (15 mins)
+3. **Write agent guidelines** covering card standards and autonomy boundaries (15 mins)
+4. **Create your first card and let the AI work** (20 mins)
 
 ## Before you start
 
 ### What you'll need
 
 - **An AI coding assistant that can use tools.** This blueprint was built with [Claude Code](https://claude.ai/code), but the patterns work with any AI assistant that can read/write files, run terminal commands, and interact with APIs. Claude Code is available as a CLI, desktop app, web app, and IDE extension.
-- **A Kanban board.** Any tool with columns and cards works. If you want agents to interact with the board automatically (creating cards, moving them, checking what's in progress), you'll need one with an API. [Businessmap](https://businessmap.io), [Trello](https://trello.com), [Linear](https://linear.app), and [GitHub Projects](https://github.com) all have APIs.
+- **A Kanban board with an API.** The AI needs to be able to read and update the board automatically. Without an API, you'd have to manually move cards, which defeats the purpose. See Step 1 below for options.
 - **A project to work on.** Something you want an AI agent to help deliver.
-- **30 minutes** for the basic setup.
+- **About an hour** for the basic setup.
 
 ### What these terms mean
 
@@ -34,11 +39,23 @@ If any of the terminology in this repo is unfamiliar, here's a quick reference:
 | **PR** | Pull request. A way to propose code changes for review before merging them into the main codebase. |
 | **CI/CD** | Continuous integration / continuous deployment. Automated checks that run when code is submitted (tests, linting, security scans). |
 
-## Step 1: Set up the board
+## Step 1: Pick a board tool and set it up
 
 The board is the foundation. Everything else builds on it.
 
-1. **Create a board** in your tool of choice. You need at minimum these columns:
+**Which board tool?** The patterns in this repo are tool-agnostic, but the board *must* have an API for agents to interact with it automatically. Here are your options:
+
+| Tool | API? | Free tier | Kanban features | Notes |
+|------|------|-----------|-----------------|-------|
+| [GitHub Projects](https://github.com) | Yes (GraphQL) | Yes | Basic | Good if your code is already on GitHub. Columns and cards, but no native WIP limits. |
+| [Trello](https://trello.com) | Yes (REST) | Yes (limited) | Basic | Easy to set up. API is straightforward. No native WIP limits. |
+| [Linear](https://linear.app) | Yes (GraphQL) | Yes (up to 250 issues) | Good | Clean API, good for software teams. Has workflow states. |
+| [Businessmap](https://businessmap.io) | Yes (REST) | 14-day trial, then ~$179/month | Excellent | Native WIP limits, blocked-in-place semantics, two-level workflow (initiatives + cards). This is what the production system uses. |
+| [Jira](https://www.atlassian.com/software/jira) | Yes (REST) | Yes (up to 10 users) | Good | Feature-rich but complex. If you already use it, it works. |
+
+**Start free.** You can always switch later. The operating model doesn't change; only the board CLI script needs adapting.
+
+1. **Create a board** with at minimum these columns:
    - Backlog (where new work goes)
    - Ready (work that's been defined well enough to start)
    - Doing (work in progress)
