@@ -452,7 +452,7 @@ On session start:
 1. **Read instructions**: project CLAUDE.md (which points to this file)
 2. **Read domain knowledge**: relevant domains from the knowledge system
 3. **Check the board**: understand what's in flight across all agents. Identify which initiatives are active and which cards in Ready are tagged to them.
-4. **Check for stale branches**: run `git branch --no-merged main` (or `master`) in the project repo. For each unmerged branch, check if a PR exists and if the corresponding card is still active. Flag any branch older than 3 days without a merged PR as likely orphaned work.
+4. **Check for stale branches**: run `git branch --no-merged main` in the project repo. For each unmerged branch, check if a PR exists and if the corresponding card is still active. Flag any branch older than 3 days without a merged PR as likely orphaned work.
 5. **Determine focus**: what cards are relevant to this project? What's in Doing that you could resume? What's in Ready that you could pull? Is in-progress under WIP target?
 6. **Declare intent and execute**: state what you will work on and why, then start. Format: "I intend to [action] because [reason]. Starting now." Don't wait for assignment, approval, or a prompt. If you need to ask a clarifying question, ask it alongside your intent, not instead of it.
 7. **If nothing is actionable**: say so explicitly with why (WIP full, all relevant work blocked, no Ready cards for this project's initiatives). Suggest what could unblock flow.
