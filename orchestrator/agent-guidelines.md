@@ -63,8 +63,8 @@ This is a minimum spec, not a template to fill robotically. A one-liner is fine 
 7. When code is complete: push the branch, open a PR, confirm CI passes. **Immediately add a card comment with the PR URL** (format: `PR: https://github.com/org/repo/pull/N`). Then choose a tier:
    - **Tier 1 — auto-ship (default for technical work).** If ALL of: CI green, diff under 200 lines, no UI/UX/copy/architecture changes, and the done-when is self-verifiable. Merge the PR to main. Confirm deployment succeeds. Move to **Shipped/Live**.
    - **Tier 2 — lightweight PO approval.** Larger technical work or changes touching areas the PO cares about but not requiring deep product review. Tag the PO in a card comment with the PR link and a one-line summary. Wait for their merge signal. Merge when approved, confirm deployment, move to **Shipped/Live**.
-   - **Tier 3 — product review via Done/VR.** Only when the card genuinely requires the PO's product judgement: UI/UX users will see, user-facing copy, architectural decisions constraining future work. Move to **Done** with the PR URL and what specifically needs review. Tag the PO.
-   - **Done is full**: block the card in Doing with reason "Done at capacity"
+   - **Tier 3 — product review via Needs PO Review.** Only when the card genuinely requires the PO's product judgement: UI/UX users will see, user-facing copy, architectural decisions constraining future work. Move to **Needs PO Review** with the PR URL and what specifically needs review. Tag the PO.
+   - **Needs PO Review is full**: block the card in Doing with reason "Review queue at capacity"
 8. If rework is flagged in Validation/Rework: resolve within that column — do not move the card back
 9. **Shipped/Live means the PR is merged to main and deployment is confirmed live.** Consider adding a gate in your board CLI that refuses moves to Shipped/Live unless the linked PR is in MERGED state. This makes it mechanically impossible for the board to lie about deployment status.
 10. Move to Closed when done
@@ -75,18 +75,19 @@ This is a minimum spec, not a template to fill robotically. A one-liner is fine 
 <!-- Adapt these numbers to your team size and throughput -->
 
 **Initiatives workflow:**
-- **Next**: 3
+- **Refinement**: 3
+- **Planning Horizon**: 3
 - **Now**: 3
 
 **Cards workflow:**
 - **Doing**: 4
-- **Done (review)**: 2
+- **Needs PO Review**: 2
 - **Validation/Rework**: 3
 
 - No limits on upstream (Backlog, Evaluation, Ready) or downstream (Shipped/Live, Closed)
 - Initiatives workflow controls strategic volume; card workflow manages execution flow
 - WIP limits are targets, not just ceilings. Being under WIP is as problematic as being over.
-- Doing + Done + VR together constitute active WIP. **Most cards must exit Doing directly to Shipped/Live.** Done is not a safe default or a "finished" column — it is a holding column exclusively for cards that require the PO's product/UX/architecture judgement before shipping. Putting a technical card in Done wastes review capacity and blocks the Done WIP limit. VR is the PO's pull, never the agent's push.
+- Doing + Needs PO Review + VR together constitute active WIP. **Most cards must exit Doing directly to Shipped/Live.** Needs PO Review is not a safe default or a "finished" column — it is a holding column exclusively for cards that require the PO's product/UX/architecture judgement before shipping. Putting a technical card in Needs PO Review wastes review capacity and blocks the review WIP limit. VR is the PO's pull, never the agent's push.
 
 ### WIP age
 
@@ -95,7 +96,7 @@ This is a minimum spec, not a template to fill robotically. A one-liner is fine 
 Run `board-cli wip-age` on session start and when making prioritisation decisions.
 
 - **Initiatives**: start = transition into Now. End = transition to Done.
-- **Cards**: start = transition into Doing. End = transition to Shipped/Live or Closed. Cards in Done or VR continue accumulating WIP age — age measures total elapsed time since starting, not time in the current column.
+- **Cards**: start = transition into Doing. End = transition to Shipped/Live or Closed. Cards in Needs PO Review or VR continue accumulating WIP age — age measures total elapsed time since starting, not time in the current column.
 - **Older items get priority.** All in-progress work is treated as being of equal importance, with its age being the driver for prioritisation. When choosing what to work on, favour the oldest unblocked item. High age signals a flow problem — investigate and resolve before pulling new work.
 
 ### Service Level Expectations (SLEs)
@@ -133,7 +134,7 @@ Use SLE percentiles as escalation triggers. As items age, the probability of mis
 
 | Item age reaches | Meaning | Action |
 |-----------------|---------|--------|
-| **50th percentile** | Larger than half of all previous items. SLE breach probability doubled. | **Investigate.** Comment on card: is it blocked? Too big? Needs swarming? |
+| **50th percentile** | Larger than half of all previous items. SLE breach probability doubled. | **Investigate.** Comment on card: is it blocked? Too big? Needs swarming (concentrating all available capacity on this single item)? |
 | **70th percentile** | Coin-flip chance of missing SLE. | **Escalate.** Tag PO. Recommend: swarm, break down, or unblock. |
 | **85th percentile (SLE)** | SLE reached. | **Alert.** PO with urgency. Immediate attention needed. |
 | **Beyond SLE** | In violation. Every day compounds risk. | **Persistent follow-up.** Daily card comments. Daily status mentions. |
@@ -212,6 +213,44 @@ npx tsc --noEmit
 ```
 
 If either fails, fix the issues before committing. Do not commit broken code with the intent of fixing it in a follow-up commit — that pushes red builds to main and erodes trust in the pipeline. Batch related changes into atomic commits: if code references a new component, that component must exist in the same commit.
+
+### Workflow visualisation
+
+**Initiative workflow (epics, features, strategic work):**
+
+```
+ BACKLOG           REQUESTED              IN PROGRESS              DONE         ARCHIVE
+ ──────────────    ──────────────────     ───────────────────      ──────────   ────────
+                   Qualifying  Planning   Refinement Now   Needs    Done
+                   (WIP 3)     Horizon    (WIP 3)    (WIP 3) Follow-up
+                              (WIP 3)                        (WIP ∞)
+
+ Ideas             Evaluation  Strategic  Refining   Strategic Waiting   Ready to  Archived
+ waiting to        & clarity   backlog    for        focus     for       Archive   (7 days)
+ qualify                                  delivery             closure   (7 days)
+```
+
+**Card workflow (work items, user stories, tasks):**
+
+```
+ BACKLOG          REQUESTED             IN PROGRESS          DONE              ARCHIVE
+ ──────────────   ──────────────────    ──────────────────   ──────────────   ────────
+                  For Evaluation        Ready  Doing  Needs   Validation/
+                  (WIP 0)               (WIP 0) (WIP 4) PO     Rework    Shipped/ Closed
+                                                       Review   (WIP 3)   Live     Ready to
+                                                       (WIP 2)            (WIP 0)  Archive
+                                                                                   (7 days)
+
+ Features to      Unclear scope,        Next    Agent  Code    PO tests  Live in  Finished
+ backlog          needs clarity         in line working complete, reviews  prod    (7 days)
+                                        queue   actively in-place rework
+```
+
+**Key patterns:**
+- Same column groupings across both workflows for strategic continuity
+- Initiatives in Now drive which cards enter Ready
+- Cards in Needs PO Review age until PO pulls to Validation/Rework
+- Both: 7 days in Ready to Archive → 7 days archived → auto-deleted
 
 ### Branch strategy
 

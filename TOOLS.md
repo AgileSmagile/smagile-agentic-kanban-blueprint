@@ -4,16 +4,16 @@
 
 | Component | Required? | Cost | Notes |
 |-----------|-----------|------|-------|
-| AI agent (Claude Code or similar) | **Yes** | $20/month | The engine that does the work |
-| Kanban board with an API | **Yes** | $0-179/month | Free options work (Trello, GitHub Projects). Paid tools have better Kanban features |
-| Database (Supabase) | Only if building a product | $0 | Free tier is generous |
-| Networking (Cloudflare) | Only if self-hosting | $0 | Free tier covers everything you need |
-| Workflow automation (n8n) | No, add later | $0 | Self-hosted, free. Useful once you have multiple services to connect |
-| CRM (Capsule) | No | $0 | Only if you're doing outreach/lead gen |
-| Hardware (Raspberry Pi) | No | ~$115 one-time | Only if you self-host instead of using cloud |
-| Everything else below | No | $0 | Nice-to-haves with free tiers |
+| AI agent (Claude Code or similar) | **Yes** | ~£16-75/month | The engine that does the work. Pro (~£16) for lighter use; Max (~£75) for heavy agentic workloads |
+| Kanban board with an API | **Yes** | £0-38/month | Free options work (Trello, GitHub Projects). Paid tools have better Kanban features |
+| Database (Supabase) | Only if building a product | £0 | Free tier is generous |
+| Networking (Cloudflare) | Only if self-hosting | £0 | Free tier covers everything you need |
+| Workflow automation (n8n) | No, add later | £0 | Self-hosted, free. Useful once you have multiple services to connect |
+| CRM (Capsule) | No | £0 | Only if you're doing outreach/lead gen |
+| Hardware (Raspberry Pi) | No | ~£160 one-time | Only if you self-host instead of using cloud |
+| Everything else below | No | £0 | Nice-to-haves with free tiers |
 
-**Minimum to start: $20/month** (AI subscription + free board tool). Everything else is optional and can be added as your system grows.
+**Minimum to start: ~£16/month** (AI subscription + free board tool). Everything else is optional and can be added as your system grows.
 
 ---
 
@@ -36,7 +36,7 @@ Every tool below was chosen because it solved a real problem in the system. This
 
 **Why this and not alternatives:** Claude Code's tool-use model (bash, file read/write, search) maps directly to software engineering workflows. The agent can read code, run tests, make commits, and interact with APIs without custom integration. The conversation context carries the full operating model.
 
-**Free tier:** Claude Code is available with a Claude Pro subscription ($20/month) or via API usage. No free tier, but the Pro subscription includes substantial usage.
+**Pricing:** Claude Code is available with a Claude Pro subscription (~£16/month) or Max (~£75/month) for heavier usage. No free tier. Pro includes substantial usage; Max gives significantly higher daily limits, which matters for sustained agentic work. Also available via API usage (pay-per-token).
 
 **Get started:** [claude.ai/code](https://claude.ai/code)
 
@@ -51,11 +51,11 @@ Every tool below was chosen because it solved a real problem in the system. This
 
 **Why this and not alternatives:** Businessmap has a proper API, supports WIP limits natively, handles blocked-in-place semantics, and has a two-level workflow (initiatives + cards) that maps well to strategic and tactical planning. Most Kanban tools treat WIP limits as decorative.
 
-**Free tier:** 14-day trial. Paid plans from ~$179/month for teams. Not cheap for a solo operator, but the API access is what makes autonomous agent interaction possible. Evaluate whether your board tool of choice has an API before committing.
+**Pricing:** One plan, all features. Starts at 5 users for ~£38/month (annual) or ~£46/month (monthly), scaling up in tiers. Additional single seats can be added after the initial purchase. Free accounts are available for educational use. Not the cheapest board option, but the API access and native Kanban semantics are what make autonomous agent interaction possible. Evaluate whether your board tool of choice has an API before committing.
 
 **Alternatives:** Any Kanban board with a REST API works. The patterns in this repo are tool-agnostic; the CLI is Businessmap-specific but the structure is adaptable. Trello, Jira, Linear, and GitHub Projects all have APIs, though their Kanban semantics vary.
 
-**Get started:** [businessmap.io](https://businessmap.io)
+**Get started:** [90-day free trial](https://businessmap.io/signup-partners?referral_code=smagile90referral) (referral link, extended from the standard 14-day trial)
 
 ---
 
@@ -98,7 +98,7 @@ Every tool below was chosen because it solved a real problem in the system. This
 
 **Why this and not alternatives:** Self-hostable, so no per-execution pricing. Visual workflow builder means non-code automations are inspectable. Webhook support makes it easy to wire into any API. The agent can import/export workflow JSON programmatically.
 
-**Free tier:** Self-hosted is free (open source, fair-code licence). Cloud-hosted starts at $24/month.
+**Free tier:** Self-hosted is free (open source, fair-code licence — a licence model that allows free use and self-hosting but restricts redistribution). Cloud-hosted starts at ~£19/month.
 
 **Get started:** [n8n.io](https://n8n.io)
 
@@ -125,7 +125,7 @@ Every tool below was chosen because it solved a real problem in the system. This
 
 **Role in the system:** Production hosting for web applications, agents, and automation. A Raspberry Pi 5 or equivalent runs Docker containers behind a Cloudflare Tunnel, providing a zero-cost compute layer after the initial hardware purchase.
 
-**Why this and not cloud platforms:** No monthly compute costs. No commercial use restrictions. No platform lock-in. A Pi 5 (8GB, ~£115 all-in) comfortably runs a Next.js app, an AI agent, n8n, and nginx concurrently. Year 2+ cost is effectively zero (electricity only).
+**Why this and not cloud platforms:** No monthly compute costs. No commercial use restrictions. No platform lock-in. A Pi 5 (8-16GB, ~£160 all-in) comfortably runs a Next.js app, an AI agent, n8n, and nginx concurrently. Year 2+ cost is effectively zero (electricity only).
 
 **When to consider this:** if you want to commercialise a product without recurring hosting costs, if you have suitable hardware available, or if you want full control over your infrastructure. Not suitable if you need global distribution, five-nines uptime, or don't want to learn Docker and networking basics.
 
@@ -148,7 +148,7 @@ Every tool below was chosen because it solved a real problem in the system. This
 
 **Why this and not alternatives:** Best-in-class Next.js support. Preview deployments are automatic.
 
-**Commercial use warning:** The hobby (free) plan **prohibits commercial use**. If you're building a product you intend to charge for, you need the Pro plan ($20/month per team member) or a different hosting solution. This restriction drove a move to self-hosting in the production system this blueprint was extracted from. Consider Netlify (no commercial restriction on free tier) or self-hosting (see [docs/hardware.md](docs/hardware.md)) as alternatives for production workloads.
+**Commercial use warning:** The hobby (free) plan **prohibits commercial use**. If you're building a product you intend to charge for, you need the Pro plan (~£16/month per team member) or a different hosting solution. This restriction drove a move to self-hosting in the production system this blueprint was extracted from. Consider Netlify (no commercial restriction on free tier) or self-hosting (see [docs/hardware.md](docs/hardware.md)) as alternatives for production workloads.
 
 **Free tier:** Yes (hobby plan), but restricted to non-commercial use.
 
@@ -230,21 +230,21 @@ For a solo operator getting started:
 
 | Component | Monthly cost |
 |-----------|-------------|
-| Claude Pro (for Claude Code) | $20 |
-| Hosting (self-hosted Pi 5) | ~£115 one-time, then ~£1/month electricity |
-| Supabase (free tier) | $0 |
-| Cloudflare (free tier) | $0 |
-| n8n (self-hosted) | $0 |
-| Capsule CRM (free tier) | $0 |
-| Netlify (free tier) | $0 |
-| UptimeRobot (free tier) | $0 |
-| Discord | $0 |
-| GitHub (free tier) | $0 |
-| Stripe (transaction-based) | $0 until revenue |
-| **Kanban board** | **$0-179+** |
-| **Total (month 1)** | **~$20 + ~£115 hardware + board** |
-| **Total (month 2+)** | **~$20 + board** |
+| Claude Code (Pro or Max) | ~£16-75 |
+| Hosting (self-hosted Pi 5) | ~£160 one-time, then ~£1/month electricity |
+| Supabase (free tier) | £0 |
+| Cloudflare (free tier) | £0 |
+| n8n (self-hosted) | £0 |
+| Capsule CRM (free tier) | £0 |
+| Netlify (free tier) | £0 |
+| UptimeRobot (free tier) | £0 |
+| Discord | £0 |
+| GitHub (free tier) | £0 |
+| Stripe (transaction-based) | £0 until revenue |
+| **Kanban board** | **£0-38** |
+| **Total (month 1)** | **~£16 + ~£160 hardware + board** |
+| **Total (month 2+)** | **~£16 + board** |
 
 The Kanban board is the variable. You can start with a free tool (Trello, GitHub Projects) and the patterns still apply. The board CLI would need adapting, but the operating model doesn't change.
 
-Self-hosting eliminates recurring compute costs entirely after the initial hardware purchase. See [docs/hardware.md](docs/hardware.md) for the full cost comparison and setup guide. If you'd rather use cloud hosting, replace the Pi line with Vercel Pro ($20/month) or equivalent; the rest of the stack stays the same.
+Self-hosting eliminates recurring compute costs entirely after the initial hardware purchase. See [docs/hardware.md](docs/hardware.md) for the full cost comparison and setup guide. If you'd rather use cloud hosting, replace the Pi line with Vercel Pro (~£16/month) or equivalent; the rest of the stack stays the same.

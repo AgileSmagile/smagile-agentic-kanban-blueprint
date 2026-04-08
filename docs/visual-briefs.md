@@ -111,7 +111,7 @@ Backlog → Ready → Doing → [branch point] → Shipped/Live → Closed → (
 - **Exception path:** Doing → Done (awaiting PO review) → Validation/Rework → Shipped/Live
 
 **Annotations:**
-- WIP limits on Doing (4), Done (2), VR (3)
+- WIP limits on Doing (4), Done (2), Validation/Rework (3)
 - "Done is full? Block in Doing with reason."
 - Blocked cards: stay in current column with a visual block indicator
 - WIP age arrow running along the bottom
@@ -169,16 +169,16 @@ Backlog → Ready → Doing → [branch point] → Shipped/Live → Closed → (
 
 | | Year 1 | Year 2 | 2-Year Total |
 |--|--------|--------|-------------|
-| Self-hosted (Pi 5) | ~£125 (hardware) + ~£10 (electricity) = £135 | ~£10 | £145 |
-| Cloud (Vercel Pro + basic) | ~£290 ($20/mo x 12) | ~£290 | £580 |
-| Cloud (full stack) | ~£580-870 | ~£580-870 | £1,160-1,740 |
+| Self-hosted (Pi 5) | ~£160 (hardware) + ~£10 (electricity) = £170 | ~£10 | £180 |
+| Cloud (Vercel Pro + basic) | ~£190 (~£16/mo x 12) | ~£190 | £380 |
+| Cloud (full stack) | ~£480-700 | ~£480-700 | £960-1,400 |
 
 **Key visual cues:**
 - The self-hosted bar should be dramatically shorter after year 1
 - Highlight the crossover point (month 2-6 depending on cloud tier)
 - Note: "hardware pays for itself within 2-6 months"
 
-**Caption:** "£115 once vs. $240-720 per year. Self-hosting pays for itself fast."
+**Caption:** "~£160 once vs. £190-700 per year. Self-hosting pays for itself fast."
 
 ---
 
@@ -215,4 +215,4 @@ Backlog → Ready → Doing → [branch point] → Shipped/Live → Closed → (
 
 **For video / talks:** These diagrams work as progressive reveal animations. Build up each element step by step rather than showing the full diagram at once.
 
-**Brand alignment:** use smagile brand colours (#117076 primary, #75bcbe secondary, #ffffff white) for consistency with other smagile content.
+**Brand alignment:** replace with your own brand colours. The production system uses #117076 (primary), #75bcbe (secondary), #ffffff (white).

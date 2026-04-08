@@ -18,11 +18,11 @@ Upfront honesty: this isn't free to run.
 
 | What you need | Cost | Notes |
 |---------------|------|-------|
-| AI agent (Claude Code) | $20-75/month | Required. Other AI tools with similar capabilities may work. |
-| Kanban board | $0-10/month(per user) | Required. Free options exist (Trello, GitHub Projects). Your agent could even build one.  Businessmap is optimised for Kanban, and has reliable API. |
-| Everything else | $0 | Database, networking, automation, monitoring all have free tiers. |
-| Hardware (optional) | ~$115 one-time | Only if you self-host instead of using cloud services. |
-| **Minimum to start** | **$20/month** | AI subscription + free board tool. |
+| AI agent (Claude Code) | ~£16-75/month | Required. Pro (~£16/month) for lighter use; Max (~£75/month) for heavy agentic workloads. Other AI tools with similar capabilities may work. |
+| Kanban board | £0 to ~£38/month | Required. Free: Trello, GitHub Projects (or build your own). Paid: [Businessmap](https://businessmap.io/signup-partners?referral_code=smagile90referral) (from ~£38/month for 5 users, 90-day trial) has the best Kanban semantics and API. |
+| Everything else | £0 | Database, networking, automation, monitoring all have free tiers. |
+| Hardware (optional) | ~£160 one-time | Only if you self-host instead of using cloud services. |
+| **Minimum to start** | **~£16/month** | AI subscription + free board tool. |
 
 See [TOOLS.md](TOOLS.md) for the full breakdown.
 
@@ -171,7 +171,7 @@ The operating model has been iterated through real delivery sessions since early
 The files here aren't locked to one AI platform. In the production system, the same operating model, knowledge system, and board are used simultaneously by:
 
 - **Claude Code agents** (terminal-based: the main delivery engine)
-- **OpenClaw agents** (Discord-based: advisory, monitoring, and coordination)
+- **[OpenClaw](https://openclaw.ai) agents** (Discord-based: advisory, monitoring, and coordination). OpenClaw is a free, always-on agentic AI assistant. It runs for free, though you get the best results when pairing it with a paid LLM service.
 
 Both platforms read the same knowledge, interact with the same board, and contribute observations back to the same learning system. See [docs/cross-runtime.md](docs/cross-runtime.md) for how this works.
 

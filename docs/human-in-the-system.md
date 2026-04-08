@@ -175,7 +175,7 @@ Agents have a finite amount of information they can hold at once. When the conte
 
 - **Don't batch unrelated requests into one session.** "Fix the login bug, then redesign the dashboard, then update the deployment scripts" forces the agent to hold three unrelated problem spaces simultaneously. Each one dilutes the context available for the others. One card per session (or a few closely related cards) produces better results.
 - **Front-load the important information.** If you're giving a complex brief, put the critical constraints first. Information at the start of a conversation is more reliably retained than information buried in the middle of a long exchange.
-- **Let compaction work for you, not against you.** Long sessions compress earlier messages. If you said something important 200 messages ago, don't assume the agent still has it. Restate key constraints when they become relevant again, or better yet, put them in CLAUDE.md where they're always loaded fresh.
+- **Let compaction work for you, not against you.** Long sessions automatically compress earlier messages to fit within the AI's context window (see the [glossary](getting-started.md#what-these-terms-mean) for details). If you said something important 200 messages ago, don't assume the agent still has it. Restate key constraints when they become relevant again, or better yet, put them in CLAUDE.md where they're always loaded fresh.
 
 ### Make time for retrospectives
 
@@ -183,7 +183,7 @@ Don't just run sessions; reflect on how they went. Ask your agents directly: "Wh
 
 Use your flow data to see the system's health. WIP age trends, throughput, time in each column: these tell you whether the system is improving or degrading. This data lives one level above the day-to-day work, which is exactly where the PO should be looking.
 
-Share what's working, not just what needs fixing. If you only surface problems, agents (and the feedback memories that persist across sessions) develop an overly cautious posture. Confirming that an approach worked is as valuable as correcting one that didn't.
+Share what's working, not just what needs fixing. If you only surface problems, agents (and the feedback memories that persist across sessions; see the [glossary](getting-started.md#what-these-terms-mean)) develop an overly cautious posture. Confirming that an approach worked is as valuable as correcting one that didn't.
 
 ### Use agents to check each other's work
 

@@ -49,7 +49,7 @@ Track informally: when you review a card, did the agent get it right on the firs
 If rework is decreasing, the feedback loop is working. Agents are applying knowledge from previous sessions and your corrections are sticking.
 
 If rework is steady or increasing, check:
-1. **Are corrections being saved as feedback memories or knowledge entries?** A correction that only exists in conversation history dies when the session ends.
+1. **Are corrections being saved as feedback memories (see [glossary](getting-started.md#what-these-terms-mean)) or knowledge entries?** A correction that only exists in conversation history dies when the session ends.
 2. **Are CLAUDE.md files carrying enough project-specific context?** If every agent has to rediscover your preferences, the system has a memory leak.
 3. **Are you reviewing the right things?** If technical work keeps coming back with product feedback, the Done/Shipped boundary might be wrong.
 

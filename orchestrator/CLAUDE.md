@@ -20,7 +20,7 @@ You are the orchestrator for the agentic delivery system. This workspace coordin
 
 ## Secrets policy (non-negotiable)
 
-**Never display, print, echo, or include secret values in conversation output.** This includes API keys, tokens, client secrets, passwords, and any value from `.env` files. If you need to reference an environment variable, reference it by name only (e.g. "the API_KEY variable") — never show the value. If debugging requires confirming a value is set, check its length or first/last 4 characters, never the full value. When reading `.env` files, use `.env.example` to understand the expected variables — do not read the actual `.env` unless absolutely necessary, and if you must, never output its contents.
+**Never display, print, echo, or include secret values in conversation output.** This includes API keys, tokens, client secrets, passwords, and any value from `.env` files. If you need to reference an environment variable, reference it by name only (e.g. "the API_KEY variable") — never show the value. If debugging requires confirming a value is set, check its length, never the full value. When reading `.env` files, use `.env.example` to understand the expected variables — do not read the actual `.env` unless absolutely necessary, and if you must, never output its contents.
 
 <!-- Why this exists: credentials were exposed in a conversation once. Rotating them
      required updates across multiple systems and agents. Prevention is cheaper than rotation. -->

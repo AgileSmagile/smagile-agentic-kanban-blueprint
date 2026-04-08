@@ -37,7 +37,16 @@ If any of the terminology in this repo is unfamiliar, here's a quick reference:
 | **Knowledge system** | The three-tier learning structure (knowledge, hypotheses, rules) that helps agents improve across sessions |
 | **PO** | Product owner. The human who sets priorities and makes product decisions. |
 | **PR** | Pull request. A way to propose code changes for review before merging them into the main codebase. |
-| **CI/CD** | Continuous integration / continuous deployment. Automated checks that run when code is submitted (tests, linting, security scans). |
+| **CI/CD** | Continuous integration / continuous deployment. Automated checks that run when code is submitted (tests, linting, security scans). "CI green" means all checks passed. |
+| **Fork** | Creating your own copy of a repository (e.g. on GitHub), which you can modify independently without affecting the original. |
+| **REST API** | A standard way for software to communicate over the web using HTTP requests. Most board tools and services offer one. |
+| **GraphQL** | An alternative to REST for querying data from a service. Used by GitHub Projects and Linear. |
+| **Docker** | Software that packages applications into containers, making them portable and easy to deploy on any machine. Used heavily in self-hosting. |
+| **DMZ** | Demilitarised zone. An isolated network segment that sits between the internet and your private network, limiting damage if a service is compromised. |
+| **Blocked-in-place** | When a card is blocked, it stays in its current column rather than moving to a separate "blocked" column. This makes the blockage visible by consuming WIP capacity. |
+| **Swarming** | Concentrating all available capacity on a single item to finish it quickly, rather than spreading effort across multiple items. |
+| **Feedback memories** | A Claude Code feature where corrections and confirmations you give persist across sessions, so the agent remembers your preferences without you repeating them. |
+| **Compaction** | When a conversation gets long, older messages are automatically compressed to fit within the AI's context window. Important details can be lost, which is why key information belongs in persistent files (CLAUDE.md, the board, the knowledge system) rather than conversation history. |
 
 ## Step 1: Pick a board tool and set it up
 
@@ -50,7 +59,7 @@ The board is the foundation. Everything else builds on it.
 | [GitHub Projects](https://github.com) | Yes (GraphQL) | Yes | Basic | Good if your code is already on GitHub. Columns and cards, but no native WIP limits. |
 | [Trello](https://trello.com) | Yes (REST) | Yes (limited) | Basic | Easy to set up. API is straightforward. No native WIP limits. |
 | [Linear](https://linear.app) | Yes (GraphQL) | Yes (up to 250 issues) | Good | Clean API, good for software teams. Has workflow states. |
-| [Businessmap](https://businessmap.io) | Yes (REST) | 14-day trial, then ~$179/month | Excellent | Native WIP limits, blocked-in-place semantics, two-level workflow (initiatives + cards). This is what the production system uses. |
+| [Businessmap](https://businessmap.io/signup-partners?referral_code=smagile90referral) | Yes (REST) | [90-day trial](https://businessmap.io/signup-partners?referral_code=smagile90referral), then from ~£38/month (5 users) | Excellent | Native WIP limits, blocked-in-place semantics (cards stay in their current column when blocked, rather than moving to a separate blocked column), two-level workflow (initiatives + cards). This is what the production system uses. |
 | [Jira](https://www.atlassian.com/software/jira) | Yes (REST) | Yes (up to 10 users) | Good | Feature-rich but complex. If you already use it, it works. |
 
 **Start free.** You can always switch later. The operating model doesn't change; only the board CLI script needs adapting.

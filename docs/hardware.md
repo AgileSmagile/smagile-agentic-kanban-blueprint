@@ -4,15 +4,15 @@
 
 Most deployment guides assume you'll use a cloud platform. That's fine if you're experimenting, but the moment you want to commercialise a product, you hit friction:
 
-- **Vercel's hobby plan prohibits commercial use.** You need the Pro plan ($20/month per team member) to legally run a revenue-generating product.
-- **Cloud costs compound.** A small app on a managed platform is cheap. Add a database, a worker, a cron job, staging environments, and suddenly you're paying $50-100/month before you've earned anything.
+- **Vercel's hobby plan prohibits commercial use.** You need the Pro plan (~£16/month per team member) to legally run a revenue-generating product.
+- **Cloud costs compound.** A small app on a managed platform is cheap. Add a database, a worker, a cron job, staging environments, and suddenly you're paying £40-80/month before you've earned anything.
 - **You're coupling to a platform.** Migrating away from Vercel, Railway, or Fly.io later means reworking deploy pipelines, environment variable management, and often the application itself.
 
 The alternative: self-host on hardware you already own (or can buy cheaply), and use free-tier cloud services for the parts that genuinely benefit from them.
 
 ## The self-hosting option
 
-The production system this blueprint was extracted from runs its core infrastructure on a **Raspberry Pi 5** (8GB RAM, ~£80). This isn't a compromise; it's a deliberate architectural choice.
+The production system this blueprint was extracted from runs its core infrastructure on a **Raspberry Pi 5** (16GB RAM). This isn't a compromise; it's a deliberate architectural choice.
 
 ### What runs on the Pi
 
@@ -42,15 +42,15 @@ The split follows a simple rule: **self-host what's stateless and cheap to run; 
 
 | Spec | Detail |
 |------|--------|
-| Model | Raspberry Pi 5, 8GB RAM |
+| Model | Raspberry Pi 5, 16GB RAM (8GB also works for lighter workloads) |
 | Storage | 256GB microSD (or USB SSD for better I/O) |
-| Cost | ~£80 (board) + £15 (case/power) + £20 (storage) = ~£115 total |
+| Cost | ~£120 (board) + £20 (case/power) + £20 (storage) = ~£160 total |
 | Power | ~5W idle, ~10W under load. Runs 24/7 for pennies. |
 | Performance | Handles a Next.js app, n8n, an OpenClaw agent, and nginx concurrently without breaking a sweat |
 
 **Pros:** tiny, silent, low power, cheap, runs standard Docker containers. ARM64 is well-supported by most frameworks and images.
 
-**Cons:** ARM64 means some Docker images need `--platform linux/arm64` builds. Puppeteer/Chromium for PDF generation requires a system Chromium fallback on ARM. I/O on microSD is slow (use a USB SSD for production workloads).
+**Cons:** ARM64 (the processor architecture used by the Pi) means some Docker images need `--platform linux/arm64` builds. Puppeteer/Chromium for PDF generation requires a system Chromium fallback on ARM. I/O on microSD is slow (use a USB SSD for production workloads).
 
 **Good for:** always-on services, agents, automation, hosting 1-3 small web applications.
 
@@ -70,9 +70,9 @@ If you don't want to manage physical hardware but want to avoid platform lock-in
 
 | Provider | Smallest plan | Notes |
 |----------|--------------|-------|
-| Hetzner | ~€4/month (ARM, 2GB) | Excellent value. ARM instances are cheapest. EU-based (good for GDPR). |
+| Hetzner | ~£3.50/month (ARM, 2GB) | Excellent value. ARM instances are cheapest. EU-based (good for GDPR). |
 | Oracle Cloud | Free tier (ARM, 24GB) | Genuinely free forever tier with substantial ARM compute. Signup can be fiddly. |
-| DigitalOcean | $6/month (1GB) | Simple, well-documented. |
+| DigitalOcean | ~£5/month (1GB) | Simple, well-documented. |
 
 A VPS gives you a public IP and avoids the need for tunnels, but costs money monthly. Hardware is a one-time purchase.
 
@@ -80,7 +80,7 @@ A VPS gives you a public IP and avoids the need for tunnels, but costs money mon
 
 If you're running services on your home or office network, network isolation is essential. See [security.md](security.md) for the full security model; here's the practical setup.
 
-### The DMZ pattern
+### The DMZ pattern (demilitarised zone)
 
 ```
 Internet
@@ -97,7 +97,7 @@ Internet
    │        └── Cannot reach guest network
 ```
 
-1. **Put the Pi on a guest network or isolated VLAN.** Most home routers support guest WiFi. The Pi sits on this segment, isolated from your primary network. If the Pi is compromised, the attacker can't reach your laptop, NAS, or other devices.
+1. **Put the Pi on a guest network or isolated VLAN (virtual LAN — a way to create separate network segments on the same physical network).** Most home routers support guest WiFi. The Pi sits on this segment, isolated from your primary network. If the Pi is compromised, the attacker can't reach your laptop, NAS, or other devices.
 
 2. **Disable the Pi's WiFi access point.** The onboard WiFi can create a bridge between network segments if left enabled. Disable it.
 
@@ -142,21 +142,21 @@ For a typical small SaaS (web app + database + auth + automation + AI agent):
 
 | Component | Self-hosted | Cloud equivalent |
 |-----------|------------|-----------------|
-| Compute (app, agent, automation) | £115 one-time (Pi hardware) | $20-60/month (Vercel Pro + Railway/Fly.io) |
-| Database + Auth | $0 (Supabase free tier) | $0 (Supabase free tier) |
-| DNS + Tunnels + CDN | $0 (Cloudflare free tier) | $0 (Cloudflare free tier) |
-| CI/CD | $0 (GitHub Actions free tier) | $0 (GitHub Actions free tier) |
-| Monitoring | $0 (UptimeRobot free tier) | $0 (UptimeRobot free tier) |
+| Compute (app, agent, automation) | ~£160 one-time (Pi hardware) | £16-48/month (Vercel Pro + Railway/Fly.io) |
+| Database + Auth | £0 (Supabase free tier) | £0 (Supabase free tier) |
+| DNS + Tunnels + CDN | £0 (Cloudflare free tier) | £0 (Cloudflare free tier) |
+| CI/CD | £0 (GitHub Actions free tier) | £0 (GitHub Actions free tier) |
+| Monitoring | £0 (UptimeRobot free tier) | £0 (UptimeRobot free tier) |
 | Electricity | ~£10/year | N/A |
-| **Year 1 total** | **~£125** | **$240-720** |
-| **Year 2+ total** | **~£10/year** | **$240-720/year** |
+| **Year 1 total** | **~£170** | **£190-580** |
+| **Year 2+ total** | **~£10/year** | **£190-580/year** |
 
-The self-hosted path pays for itself within 2-6 months depending on which cloud services you'd otherwise use.
+The self-hosted path pays for itself within 3-10 months depending on which cloud services you'd otherwise use.
 
 ### When self-hosting is not the right call
 
 - **You need global distribution.** A Pi in your house serves from one location. If your users are worldwide and latency matters, use a CDN or edge platform.
-- **You can't tolerate downtime.** Power cuts, SD card failures, and ISP outages affect a home-hosted Pi. Cloud platforms have SLAs. For a bootstrapped product with a small user base, brief downtime is acceptable. For a production service with paying customers who expect five nines, it isn't.
+- **You can't tolerate downtime.** Power cuts, SD card failures, and ISP outages affect a home-hosted Pi. Cloud platforms have SLAs. For a bootstrapped product with a small user base, brief downtime is acceptable. For a production service with paying customers who expect 'five 9s' (99.999%) uptime, it isn't.
 - **You don't want to learn ops.** Docker, nginx, firewalls, tunnels, and deploy scripts are learnable but not trivial. If you'd rather focus purely on product development, a managed platform removes that burden.
 - **Your ISP blocks outbound connections.** Some residential ISPs restrict outbound connections on certain ports. Cloudflare Tunnels usually work regardless (they use standard HTTPS), but check.
 

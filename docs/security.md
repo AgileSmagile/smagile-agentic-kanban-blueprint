@@ -236,7 +236,7 @@ Security testing is built into the delivery cycle, not treated as a periodic ext
 
 - **Pre-push security scan**: every branch push checks for npm vulnerabilities (HIGH/CRITICAL), hardcoded secret patterns, `eval()` usage, `dangerouslySetInnerHTML`, and accidentally committed `.env` files. FAIL = blocked.
 - **Dependency audit**: `npm audit` runs as part of the code health workflow (daily + on push). Vulnerabilities are surfaced as board cards and tracked through the normal workflow.
-- **OWASP top 10 awareness**: agents are instructed to avoid introducing common vulnerabilities (command injection, XSS, SQL injection). This is instruction-level defence, reinforced by code review in PRs.
+- **OWASP top 10 awareness**: agents are instructed to avoid introducing common web application vulnerabilities from the [OWASP](https://owasp.org) (Open Worldwide Application Security Project) list, including command injection, XSS (cross-site scripting — where malicious code is injected into web pages viewed by other users), and SQL injection. This is instruction-level defence, reinforced by code review in PRs.
 
 **Periodic practices:**
 
