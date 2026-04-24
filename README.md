@@ -128,8 +128,9 @@ Then go deeper on the areas that interest you:
 3. **[Tools and stack](TOOLS.md)** -- every tool used, what it costs, and whether you need it
 4. **[Hardware and self-hosting](docs/hardware.md)** -- running on your own hardware instead of paying for cloud
 5. **[Flow Guardian pattern](docs/flow-guardian.md)** -- an agent that monitors flow health and nudges for action on aging items
-6. **[Cross-runtime compatibility](docs/cross-runtime.md)** -- using the same files across different AI platforms
-7. **[How do you know it's working?](docs/measuring-health.md)** -- three signals to check at 5, 10, and 20 sessions
+6. **[Quality Gates & Test-Driven CICD](docs/quality-gates.md)** -- how to make tests enable autonomous deployment, and the Quality Guardian role that owns quality and risk
+7. **[Cross-runtime compatibility](docs/cross-runtime.md)** -- using the same files across different AI platforms
+8. **[How do you know it's working?](docs/measuring-health.md)** -- three signals to check at 5, 10, and 20 sessions
 
 ### Browse the actual files
 
@@ -138,7 +139,7 @@ Then go deeper on the areas that interest you:
 | [`orchestrator/`](orchestrator/) | The main AI agent's instructions and operating rules | This is what tells the AI how to behave, what it can and can't do, and how to use the board |
 | [`orchestrator/bin/`](orchestrator/bin/) | A command-line tool for interacting with the Kanban board | A script that lets AI agents create cards, move them, add comments, and check what's in progress |
 | [`knowledge/`](knowledge/) | The learning system: rules, hypotheses, and observations | Where the AI stores what it's learned, organised by topic, with a process for promoting guesses to confirmed rules |
-| [`personas/`](personas/) | Identity files for different AI agent roles | Includes a lead agent, coordinator, autonomous agent, and flow guardian. Each has a "soul" (identity, values) and "instructions" (responsibilities, constraints) |
+| [`personas/`](personas/) | Identity files for different AI agent roles | Includes a lead agent, coordinator, autonomous agent, flow guardian, and quality guardian. Each has a "soul" (identity, values) and "instructions" (responsibilities, constraints) |
 | [`workspace/`](workspace/) | Configuration for a focused helper workspace | How a secondary AI assistant connects back to the main system |
 | [`docs/`](docs/) | Guides and explanations | The documentation you're reading now |
 
