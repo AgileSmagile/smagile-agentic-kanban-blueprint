@@ -97,9 +97,11 @@ You check back. The agent has finished the first card, moved it to Done with a c
 
 You answer the question, review the finished card, and ship it. The agent incorporates your answer and finishes the second card before end of day.
 
-Tomorrow, a fresh agent session starts. It reads the board, sees what shipped yesterday, picks up whatever is next, and carries on. It doesn't need you to re-explain anything. The board carries the context.
+End of day. Before the session ends, you type `/lets-wrap`. The agent works through a checklist: commits anything uncommitted, reviews board hygiene, writes any learnings to the knowledge system, updates memory if context changed. It outputs what shipped, what could have gone better, and a confirmation table. Takes five minutes. The knowledge system gets smarter. Next session has better context.
 
-That's the system. Some days you're more hands-on; some days you barely check in. The board makes both modes work.
+Tomorrow, a fresh agent session starts. It reads the board, sees what shipped yesterday, picks up whatever is next, and carries on. It doesn't need you to re-explain anything. The board carries the context. The knowledge system guides decisions. Memory from yesterday remains.
+
+That's the system. Some days you're more hands-on; some days you barely check in. But every session ends the same way: reflection, knowledge capture, handoff. The board and knowledge system make continuity work.
 
 ## How to use this repository
 
@@ -111,6 +113,7 @@ Start with these two. Everything else is reference material you can read when re
 
 1. **This page** (you're most of the way through the concepts)
 2. **[The human in the system](docs/human-in-the-system.md)** -- what only you can do, what goes wrong when you abdicate, and how to be a good product owner to AI agents
+3. **[Session boundaries](docs/session-boundaries.md)** -- how context survives between sessions, including the `/lets-wrap` wrap-up routine that forces agents to reflect and capture learning
 
 Then go deeper on the areas that interest you:
 

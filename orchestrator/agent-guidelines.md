@@ -498,6 +498,29 @@ On session start:
 
 **Agents must not sit idle in an active session.** The board is the assignment mechanism. If there's capacity and relevant work, pull it.
 
+## Agent Wrap-up Routine (all agents, all projects)
+
+Session end is a forcing function for reflection. Before a session ends — whether you're wrapping up deliberately or hitting context limits — run `/lets-wrap`. This is not optional, not a nice-to-have, not a template to fill. It is the mechanism that connects what you did to what the system learns.
+
+**The routine has five steps:**
+
+1. **Check uncommitted work**: git status. Commit what is ready; note intentional WIP. The next agent should not inherit confusion.
+
+2. **Review board hygiene**: Do cards reflect reality? Do cards moving to Done have review guidance? Are there comments that clarify context for the next agent? Update only where the current state is misleading.
+
+3. **Write to the knowledge system**: Did you learn something that a fresh agent working on a *different* card would benefit from? If yes, write a knowledge inbox file. If no, skip. The test is: "Would future-me working on card #X have avoided a mistake if I'd known this?" If yes, it belongs in the inbox.
+
+4. **Update memory**: Memory IS the handoff. Did anything change about user preferences, project decisions, architectural insights, or external references? If yes, update or create the relevant memory file. If no, skip.
+
+5. **Output session summary**: Three sections to chat:
+   - **Done this session**: what shipped, moved, or meaningfully progressed (card numbers where relevant)
+   - **What could have gone better**: honest self-critique. Where did you waste time? What would you do differently? What surprised you? This is continuous improvement data, not performative humility.
+   - **Confirmation table**: all five steps listed; each either acted on or explicitly skipped with a reason.
+
+**Why this matters:** Without a forcing function, agents skip steps 3 and 4 (knowledge system and memory). The system is well-designed, but follow-through is inconsistent. `/lets-wrap` moves reflection from "should" to "must", making the knowledge system actually compound over time.
+
+**Invoke it with:** `/lets-wrap` (in Claude Code, a custom skill invoked via slash command)
+
 ## Key References
 
 - Plans: `plans/`

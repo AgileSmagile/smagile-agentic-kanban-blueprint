@@ -141,9 +141,22 @@ Before the checklist, session wrap-up was three separate practices: write handof
 
 ### Implementation
 
-In Claude Code, this is a personal-level custom skill (placed in the user's global skills directory, not a project-specific one). This means every agent in every project sees it. The PO invokes it; agents cannot skip it by forgetting it exists.
+In Claude Code, this is a personal-level custom skill (placed in the user's global skills directory, not a project-specific one). This means every agent in every project sees it. The PO invokes it at session end; agents cannot skip it by forgetting it exists.
 
-The skill file is a markdown document with YAML frontmatter. It contains the checklist steps as instructions, not as automation. The agent reads the instructions and reflects on the session, writing only where there is genuine signal. Low-value noise degrades the systems it is written to.
+The skill is invoked by typing `/lets-wrap` in the Claude Code prompt. The skill file is a markdown document with YAML frontmatter. It contains the checklist steps as instructions, not as automation. The agent reads the instructions and reflects on the session, writing only where there is genuine signal. Low-value noise degrades the systems it is written to.
+
+**Checklist steps:**
+
+1. **Uncommitted work.** Check the working tree. Commit what is ready. Note intentional WIP. The next agent should not inherit a confusing state.
+2. **Board hygiene.** Do card positions reflect reality? Are comments needed for context that would otherwise be lost? Cards moving to Done need review guidance so the PO knows what to look at.
+3. **Knowledge system.** Did the session produce observations that a fresh agent starting a different card would benefit from? Write to the knowledge inbox if yes.
+4. **Memory update.** Memory IS the handoff. Update if anything about user preferences, project decisions, or cross-project insights changed.
+5. **Session summary.** Three sections, output to chat:
+   - **Done this session**: what shipped, moved, or meaningfully progressed
+   - **What could have gone better**: honest self-critique. Where did effort get wasted? What would you do differently next time? This is continuous improvement data.
+   - **Confirmation table**: every step listed, each either acted on or explicitly skipped with a reason. "No updates needed" is fine. "Forgot" is not.
+
+The `/lets-wrap` skill is the forcing function that ensures this happens consistently. Without it, agents skip the knowledge system (most common) and memory updates (second most common). With it, reflection becomes part of the session boundary, not an optional extra.
 
 ## The weekly knowledge digest
 
