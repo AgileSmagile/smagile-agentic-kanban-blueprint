@@ -6,7 +6,7 @@
 
 ## If you're working right now (5 min)
 
-You've been dispatched to work in this system. Self-orient and pull work.
+You're operating in this system. Self-orient and pull work.
 
 **Read in order:**
 

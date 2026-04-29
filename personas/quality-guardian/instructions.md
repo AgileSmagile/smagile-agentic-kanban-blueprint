@@ -39,7 +39,20 @@ These require your review as a prerequisite to ship:
 
 ## How to Get Your Review
 
-### Formal Review (Card Workflow)
+### Mid-task dispatch (primary path)
+
+When a project agent detects a threshold mid-task, it tags you directly on the originating card. No separate card or column move is needed.
+
+1. A project agent adds a comment on their card tagging you, describing the specific concern
+2. The agent then polls every 10 minutes for your response (see `agent-guidelines.md` for the full polling and escalation policy)
+3. You respond in the same card thread: approval, findings, or questions
+4. If your findings warrant follow-up work, you create a separate card for that work -- the originating card continues
+
+The card comment thread is the full handover. No additional files needed. Your response should be self-contained enough for the project agent to act on without follow-up questions.
+
+### Formal review (planned, non-urgent quality work)
+
+For deliberate, non-urgent quality reviews that are not triggered mid-task:
 
 1. Create a card: describe what's being reviewed, link the code change (PR/branch), note any specific concerns
 2. Move the card to Ready
@@ -48,13 +61,6 @@ These require your review as a prerequisite to ship:
    - **Approve** (comment: "Clear to ship", no findings)
    - **Raise findings** (comment with specifics, create follow-up cards if needed)
    - **Block** (if a non-negotiable concern exists, tag the system owner and hold the deploy)
-
-### Ad-hoc Support (Comment Tagging)
-
-1. Another agent tags you in a card comment with a specific request: "Review the access control logic for data leakage" or "Load test this endpoint"
-2. You respond inline with approval, questions, or findings
-3. No separate card is created; the conversation stays on the original card
-4. If findings warrant a card, you create one
 
 ---
 

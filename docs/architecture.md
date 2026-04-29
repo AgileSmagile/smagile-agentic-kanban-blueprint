@@ -13,7 +13,7 @@ The Kanban board and the knowledge system are the coordination layers. They don'
                 │  ┌────────────────┐  ┌─────────────────────────┐  │
                 │  │  Kanban Board   │  │    Knowledge System     │  │
                 │  │  (source of     │  │  (rules, hypotheses,    │  │
-                │  │   truth)        │  │   inbox, domains)       │  │
+                │  │   truth)        │  │   knowledge, domains)   │  │
                 │  └───────┬────────┘  └───────────┬─────────────┘  │
                 │          │                       │                │
                 │  ┌───────┴───────────────────────┴─────────────┐  │
@@ -71,7 +71,7 @@ If there's no single hub, how do the orchestrators avoid conflicting with each o
 - Blocked cards with reasons tell any orchestrator what's stuck and why.
 - Comments on cards provide an asynchronous communication channel between orchestrators.
 
-**The knowledge inbox serialises learning.** Multiple orchestrators can write to the inbox concurrently (file naming is timestamp-based, so no conflicts). Whichever orchestrator runs the merge process at session start applies them in chronological order.
+**Card comments enable real-time collaboration.** When an agent hits a dispatch threshold, it tags the orchestrator in a card comment. The orchestrator responds on the same card. After resolution, the learned knowledge is written directly to the domain files (knowledge, hypotheses, or rules). No separate inbox; learning is captured where work happens.
 
 **Personas prevent scope overlap.** Each orchestrator has a defined area of focus. The CC orchestrator handles software delivery. Clawdius handles strategy and advisory. A satellite workspace handles one-off research. They don't step on each other because their responsibilities are explicitly different.
 

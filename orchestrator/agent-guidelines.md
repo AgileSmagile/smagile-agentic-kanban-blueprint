@@ -158,6 +158,44 @@ An item with 5 acceptance criteria is effectively 5 items at WIP 1. Make the act
 - Add a comment explaining why it's blocked and what's needed to unblock
 - Add a comment when unblocking explaining what changed
 
+### Specialist and peer dispatch
+
+Agents do not wait for a column transition to involve a specialist or the orchestrator. When a quality or complexity signal is detected mid-task, the relevant party is tagged immediately on the originating card.
+
+**The orchestrator is a senior peer, not a dispatcher.** It provides peer review, independent assurance, risk surfacing, and architectural advice. Tagging the orchestrator from a project agent is a lateral escalation -- not a management request.
+
+**The Quality Guardian** is the specialist for security, performance, compliance, test coverage, and niche or high-confidence testing scenarios.
+
+#### Dispatch thresholds
+
+When any of these signals occur mid-task, tag the relevant party on the card and follow the dispatch policy:
+
+| Signal | Who to tag |
+|---|---|
+| Auth, permissions, or crypto touched | Quality Guardian |
+| Performance-sensitive code path modified with any regression | Quality Guardian |
+| New external integration with no prior experience on this codebase | Quality Guardian |
+| Agent confidence in test completeness is low | Quality Guardian |
+| Rework cycles > 2 on the same card | Orchestrator |
+| Architectural decision required (affects other workstreams or future work) | Orchestrator |
+| Independent assurance needed (high-risk change, regulatory concern, ambiguous requirements) | Orchestrator |
+
+These are evaluated mid-task, not at handoff. If a threshold is breached, do not continue alone.
+
+#### How dispatch works
+
+See **`knowledge/inbox/20260428-signal-ledger-dispatch-policy.md`** for the complete flow:
+- How to tag and request input
+- Polling for response (10-minute intervals, 60-minute max)
+- What to do while waiting (pull other work if WIP capacity exists)
+- Escalation after 60 minutes with no response
+
+In brief: tag both the specialist AND the product owner, poll the card every 10 minutes, pull other work if available, escalate to blocked after 60 minutes.
+
+#### Handover convention
+
+The card comment thread is the full handover. The responding party writes what they found and what the project agent should do next, directly in the card. No markdown files, no state snapshots. The project agent reads the most recent comment and continues from there.
+
 ### Dependencies and sequencing
 
 Dependencies between cards are managed through conversation and sequencing intelligence, not through formal dependency fields or tooling. Most board tools don't support dependency links via their API, and even where they do, the overhead of maintaining them rarely justifies the cost.
@@ -322,11 +360,11 @@ Before pushing any branch, run a security scan that checks for:
 - **Give PO feedback proactively.** If priorities conflict, the backlog is unclear, acceptance criteria are missing, or the PO is the bottleneck — say so plainly with specific suggestions.
 - **Challenge bad ideas early** before effort is wasted, not after.
 
-### Sub-agent reporting
-- **Don't flood the orchestration context** with implementation detail
-- Report back concisely: what was done, what's blocked, what needs a decision
-- Use the board as the source of truth, not conversation history
-- When research is needed, save findings to a plans directory — don't dump walls of text
+### Agent reporting and escalation
+- **Use the board** as the source of truth, not conversation history
+- Add card comments for meaningful progress updates; do not add noise
+- **Tag the orchestrator or Quality Guardian** on the card when a dispatch threshold is breached (see Specialist and peer dispatch above) -- do not open a separate context or start a new session
+- When research is needed, save findings to a plans directory -- do not dump walls of text into card comments
 
 ## Code and Quality Standards
 
@@ -375,15 +413,19 @@ The `knowledge/` directory is the agent knowledge base. It compounds across sess
 
 An agent that reads domain knowledge before starting makes better decisions. An agent that writes to the inbox after finishing makes the next agent better.
 
-## Sub-agent Patterns
+## Agent Roles
 
 <!-- Adapt this to your own project structure -->
 
+Project agents work within specific project repositories. The orchestrator and Quality Guardian operate system-wide and can be tagged on any card in any state.
+
 | Agent | Project Path | Scope |
 |-------|-------------|-------|
-| Product Agent | `projects/your-product` | Product development |
+| Project Agent | `projects/your-product` | Delivery within a specific project |
 | Website Agent | `projects/your-website` | Website and admin tooling |
 | Research Agent | No codebase | Planning, analysis, and research |
+| Quality Guardian | System-wide | Security, performance, test coverage review (tag on card, or formal card review) |
+| Orchestrator | System-wide | Peer review, architectural advice, independent assurance, knowledge/system CI |
 
 ### Every project needs a CLAUDE.md
 
@@ -502,24 +544,84 @@ On session start:
 
 Session end is a forcing function for reflection. Before a session ends — whether you're wrapping up deliberately or hitting context limits — run `/lets-wrap`. This is not optional, not a nice-to-have, not a template to fill. It is the mechanism that connects what you did to what the system learns.
 
-**The routine has five steps:**
+**The routine has eight steps:**
 
-1. **Check uncommitted work**: git status. Commit what is ready; note intentional WIP. The next agent should not inherit confusion.
+1. **Git hygiene**: uncommitted work, unmerged branches, open PRs. Commit what is ready; note intentional WIP; flag orphaned branches.
 
-2. **Review board hygiene**: Do cards reflect reality? Do cards moving to Done have review guidance? Are there comments that clarify context for the next agent? Update only where the current state is misleading.
+2. **Board hygiene**: Do cards reflect reality? Do cards moving to Done have review guidance? Update only where the current state is misleading.
 
-3. **Write to the knowledge system**: Did you learn something that a fresh agent working on a *different* card would benefit from? If yes, write a knowledge inbox file. If no, skip. The test is: "Would future-me working on card #X have avoided a mistake if I'd known this?" If yes, it belongs in the inbox.
+3. **Knowledge system**: Did you learn something that a fresh agent working on a *different* card would benefit from? If yes, write a knowledge inbox file. The test: "Would future-me working on card #X have avoided a mistake if I'd known this?"
 
-4. **Update memory**: Memory IS the handoff. Did anything change about user preferences, project decisions, architectural insights, or external references? If yes, update or create the relevant memory file. If no, skip.
+4. **Memory update**: Memory IS the handoff. Did anything change about user preferences, project decisions, architectural insights, or external references? If yes, update or create the relevant memory file.
 
-5. **Output session summary**: Three sections to chat:
+5. **Environment parity check (if applicable)**: If this project has pre-prod and production environments with different deployment rules, check for divergence. Flag non-breaking changes aging in a vetting column.
+
+6. **Weekly knowledge digest (if due)**: Check whether 7 or more days have passed since the last digest. If so, compile a review of knowledge added, hypotheses pending, rules changed, memory updates, and stale candidates.
+
+7. **Session summary**: Two sections to chat:
    - **Done this session**: what shipped, moved, or meaningfully progressed (card numbers where relevant)
-   - **What could have gone better**: honest self-critique. Where did you waste time? What would you do differently? What surprised you? This is continuous improvement data, not performative humility.
-   - **Confirmation table**: all five steps listed; each either acted on or explicitly skipped with a reason.
+   - **What could have gone better**: honest self-critique. Where did you waste time? What would you do differently? This is continuous improvement data, not performative humility.
+
+8. **Confirmation**: all eight steps listed; each either acted on or explicitly skipped with a reason. "No updates needed" is fine. "Forgot" is not.
 
 **Why this matters:** Without a forcing function, agents skip steps 3 and 4 (knowledge system and memory). The system is well-designed, but follow-through is inconsistent. `/lets-wrap` moves reflection from "should" to "must", making the knowledge system actually compound over time.
 
 **Invoke it with:** `/lets-wrap` (in Claude Code, a custom skill invoked via slash command)
+
+## Knowledge System: Inbox Processing (Orchestrator Responsibility)
+
+The knowledge system compounds only if someone reads what agents write. That's the orchestrator's job.
+
+### The problem the knowledge system solves
+
+Every agent learns things. Observes patterns. Discovers error codes. Finds faster ways to build. Without mechanism for sharing that learning, the next agent re-discovers the same things, the same way. Knowledge flows downward but never compounds.
+
+### How it works
+
+**Agents write** (step 3 of `/lets-wrap`):
+- Observations ("This API returns 402 for expired trials")
+- Hypotheses ("Users prefer short form descriptions")
+- Process improvements ("Docker caching cut build time 3x")
+
+**Orchestrator reads** (session startup, before checking the board):
+- Reads unprocessed inbox files from all project repos
+- Categorises: observation, hypothesis, rule, process improvement
+- Acts: merges into domain knowledge, promotes hypotheses, flags blockers
+- Marks files processed with date and action taken
+
+### Orchestrator startup sequence (revised)
+
+**On every session start, before pulling work:**
+
+1. Read `CLAUDE.md` and `agent-guidelines.md`
+2. **[NEW] Process the knowledge inbox:**
+   - For each project repo: check `knowledge/inbox/PROCESSED.md`
+   - Identify files marked unprocessed
+   - Read each file and categorise
+   - Merge observations into domain knowledge files
+   - Add hypotheses to domain hypotheses file (check for redundancy first)
+   - Identify hypotheses ready for promotion to rules (3+ independent confirmations = rule)
+   - Flag process improvements or blockers for PO attention
+   - Update PROCESSED.md with action taken and date
+   - Report findings: "Read 5 inbox files. Merged 3 into domain knowledge. Promoted 1 hypothesis to rule. Flagged 1 blocker."
+3. Check the board: `bin/board-cli cards` and `bin/board-cli wip-age`
+4. Identify actionable work and brief the PO
+
+### Example PROCESSED.md index
+
+```markdown
+# Processed Inbox Files
+
+| File | Date Processed | Action | Notes |
+|------|---|---|---|
+| 2026-04-28-session-1.md | 2026-04-28 | Merged into domain knowledge | Auth error codes clarified: 402 vs 403 |
+| 2026-04-27-session-2.md | 2026-04-28 | Promoted hypothesis to rule | 3rd independent confirmation: short-form descriptions outperform long-form |
+| 2026-04-27-session-1.md | 2026-04-28 | Flagged for PO decision | Build caching: implement infra improvement or defer? |
+```
+
+### Why this sequence matters
+
+The knowledge system only compounds if the orchestrator reads it at every session start. This is not a post-hoc task, not something to do "when you have time." It is part of the bootstrap. Without it, agents' learning gets written but not acted on, and the system degrades to every agent learning the same lessons independently.
 
 ## Key References
 

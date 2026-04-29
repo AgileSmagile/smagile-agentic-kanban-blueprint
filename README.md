@@ -81,9 +81,19 @@ Each agent has two files: a **soul** (identity, values, communication style) and
 
 ### 5. Autonomy has explicit boundaries
 
-Agents can read code, write code, run tests, and make commits freely. They confirm with a human before deploying, merging to the main branch, or making architectural decisions. They must never display passwords or API keys. These boundaries are written into the agent's instructions, not left to chance.
+Within project scope, agents have full autonomy. Any card tagged with their project domain is theirs to pull and deliver. They don't ask permission; they declare intent and execute. Questions are raised only for genuine ambiguity (scope trade-offs, implementation options, risk assessment), not for courtesy approval. They ship according to your tiered authority model: Tier 1 self-merges and deploys; Tier 2 ships to staging for review; Tier 3 requires approval before shipping. They must never display passwords or API keys. These boundaries are written into the agent's instructions, not left to chance.
 
-### 6. Security is architectural, not instructional
+### 6. Agents know their limits -- and act on them
+
+A capable agent does not push through every problem alone. It recognises when it needs a specialist and pulls one in mid-task, rather than waiting for a handoff column or a human to intervene.
+
+The trigger is the work itself. Certain signals -- touching authentication, performance regressions, low confidence in test coverage -- tell the agent it needs peer review before continuing. It tags the relevant specialist in a card comment and waits for a response. The card stays exactly where it is. No separate review column, no additional overhead for the person responsible for quality; the conversation happens on the originating card.
+
+This matters because the alternative is worse than it looks. An agent that pushes through produces work that looks complete but carries hidden risk. An agent that always escalates to the human for every concern recreates the bottleneck you were trying to escape. Threshold-based specialist invocation is the middle path: the agent handles what it's confident in, escalates what it isn't, and the quality signal comes from the work rather than from a column move.
+
+The same logic applies to learning. Each completed task leaves behind a structured record -- what was hard, what to watch out for, which patterns hold for this codebase -- that the next agent working on something similar can read before starting. The board handles coordination across sessions; this handles accumulation of task-level knowledge that isn't general enough to go in the shared knowledge system but is too valuable to discard.
+
+### 7. Security is architectural, not instructional
 
 Telling an AI agent "don't leak secrets" in its instructions is the weakest form of protection. The real security comes from network isolation (running agents on a separate network segment), encrypted secrets management, scope boundaries (agents can only access their own project), and automated security scans before code is shared. See [docs/security.md](docs/security.md) for the full model.
 
@@ -95,7 +105,7 @@ You create two new cards for today's priorities, writing a sentence or two on ea
 
 You go do something else. Client call. Emails. Lunch.
 
-You check back. The agent has finished the first card, moved it to Done with a comment explaining what it did and what to review, and has already pulled the second card. It hit a question about your brand voice and left a comment asking for direction rather than guessing.
+You check back. The agent has finished the first card, moved it to Done with a comment explaining what it did and what to review, and has already pulled the second card. On the second card, it spotted a change touching your authentication logic -- outside its confidence threshold -- so it tagged the Quality Guardian in a comment and moved on to the third card rather than sitting idle. The Quality Guardian's response came back twenty minutes later; the agent read it, incorporated the finding, and continued. No human decision needed.
 
 You answer the question, review the finished card, and ship it. The agent incorporates your answer and finishes the second card before end of day.
 
@@ -187,6 +197,8 @@ Both platforms read the same knowledge, interact with the same board, and contri
 The knowledge system (knowledge/hypotheses/rules with promotion thresholds) was originally inspired by [Pawel Huryn](https://www.linkedin.com/in/pawel-huryn)'s CLAUDE.md pattern for compounding AI learning across sessions.
 
 Specific patterns in the operating model (time-decay on knowledge, failure-first observation capture, explicit decision vocabulary) were extracted from [AutoResearchClaw](https://github.com/aiming-lab/AutoResearchClaw) by selectively adapting what was useful.
+
+The threshold-based specialist dispatch pattern and task-level learning (idea 6 above) were informed by the ECAP/TECAP experience capsule framework in [ClawCode](https://github.com/deepelementlab/clawcode) by DeepElementLab, reinterpreted for async board-driven collaboration and adapted to the specific constraints of this system.
 
 The current architecture is a product of those starting points combined with sustained personal experimentation, real delivery sessions, and the application of ProKanban principles to agentic workflows.
 

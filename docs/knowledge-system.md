@@ -67,36 +67,36 @@ Observation → Knowledge entry → Hypothesis (if pattern detected)
 
 This is deliberate. Rules earn their status. They can also lose it. The system self-corrects.
 
-## The Inbox Pattern
+## How Learning Gets Captured
 
-Sub-agents can't write directly to domain files. Only the orchestrator merges knowledge. This prevents concurrent write conflicts and ensures quality control.
+Agents capture learning where the work happens: in card comments and project documentation.
 
-Instead, sub-agents write to an inbox:
+### During work: card comments
 
+When an insight emerges mid-task, agents tag the orchestrator or relevant party in a card comment (see the dispatch policy for the full flow). The conversation happens on the card. When the discussion resolves, the learned knowledge is written directly to the appropriate file.
+
+### After completing work: direct writes
+
+When a card completes, the agent writes any observations directly to the domain's knowledge/hypothesis/rules files:
+
+1. **New observation?** → Add to `knowledge/domain-name/knowledge.md`
+2. **Pattern detected?** → Add to `knowledge/domain-name/hypotheses.md` with a testable conjecture
+3. **Hypothesis confirmed (5+ evidence)?** → Promote in `knowledge/domain-name/hypotheses.md` and move entry to `rules.md`
+4. **Rule contradicted?** → Flag to the PO before demoting (requires human review)
+
+Example: an agent notices that variant generation takes 8-12 minutes even with a complete base model. It writes directly to `knowledge/your-product/knowledge.md`:
+
+```markdown
+## Variant generation performance | card-742 | 2026-04-01
+Primary bottleneck is AI synthesis step (8-12 min), not data retrieval.
+Observed across 3 runs with different input sizes.
 ```
-knowledge/inbox/20260401-153012-card-742.md
-```
 
-Each inbox entry has YAML frontmatter specifying the action:
+### The orchestrator's role
 
-```yaml
----
-domain: prokanban
-action: add          # add | promote | demote | update | deprecate
-file: knowledge      # knowledge | hypotheses | rules
-source: card-742
-agent: product-agent
----
-```
+The orchestrator reads the knowledge files at session start to understand what the system has learned. It flags contradictions, helps promote hypotheses that have earned enough evidence, and ensures demotions are human-reviewed. It does not write to the files — agents do, as part of their work.
 
-The orchestrator processes the inbox at session start:
-1. List all `.md` files in `inbox/` (excluding `processed/` and `README.md`)
-2. Sort by filename (chronological)
-3. Parse frontmatter, apply each action to the target domain file
-4. Move processed files to `inbox/processed/`
-5. Report what was merged
-
-`demote` and `deprecate` actions are flagged to the PO before applying. You don't downgrade institutional knowledge without human review.
+This model eliminates the inbox altogether: learning is captured where work happens (card comments and knowledge files), not in a separate collection point.
 
 ## Domains
 
@@ -132,10 +132,12 @@ This takes an agent 30 seconds and prevents it from repeating known mistakes or 
 
 ### After completing a card
 
-1. Write an inbox entry for any new observation, pattern, or correction
-2. If a hypothesis was confirmed or contradicted, write an inbox entry to promote/demote it
+1. Write any observations directly to `knowledge/domain-name/knowledge.md`
+2. If a pattern was detected, add to `knowledge/domain-name/hypotheses.md`
+3. If a hypothesis was confirmed (5+ evidence), promote it to `rules.md`
+4. If a rule was contradicted, flag it to the PO for review (do not demote without approval)
 
-This takes 60 seconds and makes the next agent on a similar task measurably better.
+This takes 60 seconds and makes the next agent on a similar task measurably better. Learning is written where agents read it: in the domain files themselves, not in a separate inbox.
 
 ## Why This Works for AI Agents
 

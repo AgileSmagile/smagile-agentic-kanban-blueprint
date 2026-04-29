@@ -26,13 +26,53 @@ When a fresh session starts, the agent should self-orient and act. **The agent s
 
 3. **Check for stale branches.** Run `git branch --no-merged main` and cross-reference with open PRs and card statuses. Branches older than 3 days without a merged PR are likely orphaned work from previous sessions. Flag them.
 
-4. **Read relevant knowledge.** If the knowledge system has rules or observations for this domain, the agent should read them before starting. This prevents repeating mistakes that previous sessions already learned from.
+4. **Load domain-aware context.** Your cards link to parent initiatives via [#ID] prefix (e.g. `[#805]`). Use this to bootstrap relevant knowledge:
+   - Extract the [#ID] from each card title
+   - Look up that initiative in the project's MEMORY.md domain index
+   - Load the matching domain file (e.g. `domains/MOSAIC.md`)
+   - Load relevant feedback and reference files listed under that domain
+
+   This prevents guessing what "relevant" means. The domain mapping is explicit. Example: card `[#805] Update CV template logic` → initiative 805 = Mosaic v2 → load `domains/MOSAIC.md`, `feedback_cv_output_quality.md`, `handoff_mosaic.md`.
+
+   For independent cards (no [#ID] prefix), load your baseline context only: general policies, agent guidelines, and global memory.
 
 5. **Read the card it's about to work on.** Not just the title and description, but the comments. The last comment from the previous session is the handoff note. It contains decisions, current state, and remaining work.
 
 6. **Declare intent and start.** Don't just brief the human on what you found. State what you intend to do about it: "I intend to resume card #42 because it's the oldest unblocked item in Doing. Starting now." If there's a question that needs the human's input, ask it alongside your intent, not instead of it. The human can redirect if needed, but the default is that the agent acts.
 
 This is the difference between an assistant and an autonomous agent. An assistant waits for instructions. An agent reads the situation, forms a plan, and declares its intent.
+
+## Autonomy boundary: what you own
+
+Once you've loaded domain context and identified cards in your project, the decision is made. You pull. You work. You ship. No approval needed.
+
+### What this means
+
+- **Any card tagged with your initiative is in scope.** It is not optional. It is not "please do this if you have time." It is work that needs delivering.
+- **You pull with agency.** You read the card, you understand the context, you start. You do not open with "ready when you are" or "what should I prioritize." The board tells you what to prioritize.
+- **You raise questions only when necessary:**
+  - Scope ambiguity: "The card says build X. Should it also include Y?"
+  - Multiple valid implementations: "I see three ways to do this. Here's the trade-off. I'm going with option B unless you advise otherwise."
+  - Risk or architectural concern: "This touches the auth layer. Should I check with the orchestrator before shipping?"
+  - Genuinely unclear requirements: not "is this okay?" but "I don't understand what done looks like here."
+- **You do not ask permission to do work in your scope.** That is abdication, not collaboration.
+
+### The initialization flow
+
+Session starts → Load context from [#ID] mapping → Read your cards → Declare intent → Execute
+
+You start warm because previous agents left context. You operate with autonomy because the board and domain artifacts tell you what to do. You raise questions only when clarity or judgment is actually needed, not as a courtesy check.
+
+### Example: what this looks like
+
+**Cold start (what NOT to do):**
+> I've read the board. There are 3 cards in Mosaic. What would you like me to work on first?
+
+**Warm start (what to do):**
+> Loaded Mosaic domain context. Card #42 (update template logic) is oldest unblocked item in Doing. Resuming from previous session's note. Starting now.
+> [Questions, if any, only about implementation trade-offs or scope clarification]
+
+The difference: one asks permission. The other declares intent and acts.
 
 ## Where to write what
 
@@ -122,7 +162,7 @@ The PO types a command (in Claude Code, this is a custom skill invoked via slash
 
 ### The checklist
 
-1. **Uncommitted work.** Check the working tree. Commit what is ready. Note intentional WIP. The next agent should not inherit a confusing state.
+1. **Git hygiene.** Check the working tree for uncommitted changes. Commit what is ready; note intentional WIP. Check for unmerged branches older than 24 hours with no open PR. Review open PRs for neglect. The next agent should not inherit a confusing state.
 
 2. **Board hygiene.** Do card positions reflect reality? Are comments needed for context that would otherwise be lost? Cards moving to Done need review guidance so the PO knows what to look at.
 
@@ -130,10 +170,15 @@ The PO types a command (in Claude Code, this is a custom skill invoked via slash
 
 4. **Memory update.** Memory is the handoff. There is no separate handoff step. If memory is updated properly, the next session self-orients from memory, the board, and the code. One practice instead of three. Project-specific decisions go in project-level memory. Cross-project insights and user preferences go in global memory.
 
-5. **Session summary.** Three sections, output to chat:
+5. **Environment parity check (if applicable).** If your project has pre-prod and production deployments with different automation rules, check for divergence. If pre-prod auto-deploys on every push to main but production requires manual dispatch, list commits waiting for promotion. Flag if non-breaking changes are aging in a vetting column. This prevents pre-prod and prod from silently drifting out of sync.
+
+6. **Weekly knowledge digest (if due).** Check whether 7 or more days have passed since the last digest. If so, compile a review of: knowledge added, hypotheses pending, rules promoted or demoted, memory changes, and stale candidates for pruning. If not due, skip.
+
+7. **Session summary.** Output to chat:
    - **Done this session**: what shipped, moved, or meaningfully progressed
-   - **What could have gone better**: honest self-critique, not performative humility. Where did the agent waste time? What would it do differently? This is continuous improvement data
-   - **Confirmation table**: every step listed, each either acted on or explicitly skipped with a reason. "No updates needed" is fine. "Forgot" is not.
+   - **What could have gone better**: honest self-critique, not performative humility. Where did the agent waste time? What would it do differently? This is continuous improvement data.
+
+8. **Confirmation.** List all eight steps. Each either acted on or explicitly skipped with a reason. "No updates needed" is fine. "Forgot" is not.
 
 ### What this replaces
 
@@ -147,14 +192,14 @@ The skill is invoked by typing `/lets-wrap` in the Claude Code prompt. The skill
 
 **Checklist steps:**
 
-1. **Uncommitted work.** Check the working tree. Commit what is ready. Note intentional WIP. The next agent should not inherit a confusing state.
-2. **Board hygiene.** Do card positions reflect reality? Are comments needed for context that would otherwise be lost? Cards moving to Done need review guidance so the PO knows what to look at.
-3. **Knowledge system.** Did the session produce observations that a fresh agent starting a different card would benefit from? Write to the knowledge inbox if yes.
+1. **Git hygiene.** Uncommitted work, unmerged branches, open PRs. Commit what is ready; flag orphans.
+2. **Board hygiene.** Card positions reflect reality? Comments needed? Cards moving to Done need review guidance.
+3. **Knowledge system.** Did the session produce observations a fresh agent on a different card would benefit from? Write to the knowledge inbox if yes.
 4. **Memory update.** Memory IS the handoff. Update if anything about user preferences, project decisions, or cross-project insights changed.
-5. **Session summary.** Three sections, output to chat:
-   - **Done this session**: what shipped, moved, or meaningfully progressed
-   - **What could have gone better**: honest self-critique. Where did effort get wasted? What would you do differently next time? This is continuous improvement data.
-   - **Confirmation table**: every step listed, each either acted on or explicitly skipped with a reason. "No updates needed" is fine. "Forgot" is not.
+5. **Environment parity check (if applicable).** Pre-prod/prod divergence. Flag non-breaking changes aging in vetting.
+6. **Weekly knowledge digest (if due).** 7+ days since last digest? Compile one. If not due, skip.
+7. **Session summary.** Done this session; what could have gone better.
+8. **Confirmation.** All eight steps listed; each acted on or explicitly skipped with a reason.
 
 The `/lets-wrap` skill is the forcing function that ensures this happens consistently. Without it, agents skip the knowledge system (most common) and memory updates (second most common). With it, reflection becomes part of the session boundary, not an optional extra.
 
