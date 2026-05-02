@@ -184,7 +184,7 @@ These are evaluated mid-task, not at handoff. If a threshold is breached, do not
 
 #### How dispatch works
 
-See **`knowledge/inbox/20260428-signal-ledger-dispatch-policy.md`** for the complete flow:
+See the dispatch policy documentation for the complete flow:
 - How to tag and request input
 - Polling for response (10-minute intervals, 60-minute max)
 - What to do while waiting (pull other work if WIP capacity exists)
@@ -378,20 +378,7 @@ Before pushing any branch, run a security scan that checks for:
 
 ## Knowledge System
 
-The `knowledge/` directory is the agent knowledge base. It compounds across sessions. Consult it before starting work; write to the inbox after finishing.
-
-### Orchestrator: inbox merge (run at session start, before checking the board)
-
-1. List all `.md` files in `knowledge/inbox/` (excluding `processed/` and `README.md`)
-2. Sort by filename (chronological order)
-3. For each file, parse the YAML frontmatter and apply:
-   - `add` → append the body as a dated entry to `knowledge/<domain>/<file>.md`
-   - `promote` → find the matching entry in `hypotheses.md`, move it to `rules.md`, set `source: promoted`; record the promotion in `knowledge.md`
-   - `update` → find the matching entry, append a dated correction note below it
-   - `demote` → **flag to PO before applying**; if approved, move entry from `rules.md` to `hypotheses.md` with the contradiction note
-   - `deprecate` → **flag to PO before applying**; if approved, prepend `[DEPRECATED YYYY-MM-DD]` to the entry
-4. Move each processed file to `knowledge/inbox/processed/`
-5. Report what was merged in 1 line per item; flag any `demote`/`deprecate` items that need the PO's decision
+The `knowledge/` directory is the agent knowledge base. It compounds across sessions. Consult it before starting work; write to domain files after finishing.
 
 ### Before starting a card
 
@@ -399,11 +386,14 @@ The `knowledge/` directory is the agent knowledge base. It compounds across sess
 2. Read `rules.md` for each relevant domain — apply these by default, no justification needed
 3. Scan `hypotheses.md` — note if today's work can test or refute any active hypothesis
 
-### After completing a card — sub-agents write to inbox only
+### After completing a card — write directly to domain files
 
-**Never write directly to domain files.** Write an inbox file at `knowledge/inbox/YYYYMMDD-HHMMSS-{card-id}.md`. See `knowledge/inbox/README.md` for format and full examples.
+All agents write observations directly to the relevant domain files:
 
-**Orchestrator** may write directly to domain files during session work (it is the single merge agent).
+1. **New observation** → append a dated entry to `knowledge/<domain>/knowledge.md`
+2. **Pattern detected** → add to `knowledge/<domain>/hypotheses.md` with a testable conjecture
+3. **Hypothesis confirmed (5+ evidence)** → promote: move from `hypotheses.md` to `rules.md`, set `source: promoted`
+4. **Rule contradicted** → flag to PO before demoting (requires human review)
 
 ### Source types for rules
 
@@ -411,7 +401,7 @@ The `knowledge/` directory is the agent knowledge base. It compounds across sess
 - `derived` — built from repeated observation, earned empirically
 - `promoted` — started as a hypothesis, earned rule status through 5+ confirmations
 
-An agent that reads domain knowledge before starting makes better decisions. An agent that writes to the inbox after finishing makes the next agent better.
+An agent that reads domain knowledge before starting makes better decisions. An agent that writes to domain files after finishing makes the next agent better.
 
 ## Agent Roles
 
@@ -455,7 +445,7 @@ Follow `[path to agent-guidelines.md]` for:
 - CI/CD practices (pre-commit checks, branch strategy, atomic commits, tests)
 - Autonomy boundaries (what requires confirmation vs. proceed autonomously)
 - Communication standards (radical candour, no flattery)
-- Knowledge system (read before starting, write to inbox after completing)
+- Knowledge system (read before starting, write to domain files after completing)
 
 Key commands (run from the orchestrator workspace):
 - Look up cards: `board-cli card <id>`, `board-cli cards`
@@ -550,7 +540,7 @@ Session end is a forcing function for reflection. Before a session ends — whet
 
 2. **Board hygiene**: Do cards reflect reality? Do cards moving to Done have review guidance? Update only where the current state is misleading.
 
-3. **Knowledge system**: Did you learn something that a fresh agent working on a *different* card would benefit from? If yes, write a knowledge inbox file. The test: "Would future-me working on card #X have avoided a mistake if I'd known this?"
+3. **Knowledge system**: Did you learn something that a fresh agent working on a *different* card would benefit from? If yes, write it to the relevant domain file. The test: "Would future-me working on card #X have avoided a mistake if I'd known this?"
 
 4. **Memory update**: Memory IS the handoff. Did anything change about user preferences, project decisions, architectural insights, or external references? If yes, update or create the relevant memory file.
 
@@ -568,60 +558,40 @@ Session end is a forcing function for reflection. Before a session ends — whet
 
 **Invoke it with:** `/lets-wrap` (in Claude Code, a custom skill invoked via slash command)
 
-## Knowledge System: Inbox Processing (Orchestrator Responsibility)
+## Knowledge System: Hygiene (Orchestrator Responsibility)
 
-The knowledge system compounds only if someone reads what agents write. That's the orchestrator's job.
+The knowledge system compounds only if agents write to it and someone reviews it for quality. That review is the orchestrator's job.
 
 ### The problem the knowledge system solves
 
-Every agent learns things. Observes patterns. Discovers error codes. Finds faster ways to build. Without mechanism for sharing that learning, the next agent re-discovers the same things, the same way. Knowledge flows downward but never compounds.
+Every agent learns things. Observes patterns. Discovers error codes. Finds faster ways to build. Without a mechanism for sharing that learning, the next agent re-discovers the same things, the same way. Knowledge flows downward but never compounds.
 
 ### How it works
 
-**Agents write** (step 3 of `/lets-wrap`):
-- Observations ("This API returns 402 for expired trials")
-- Hypotheses ("Users prefer short form descriptions")
-- Process improvements ("Docker caching cut build time 3x")
+**All agents write directly to domain files** (step 3 of `/lets-wrap`):
+- Observations → `knowledge/<domain>/knowledge.md`
+- Hypotheses → `knowledge/<domain>/hypotheses.md`
+- Process improvements → `knowledge/<domain>/knowledge.md`
 
-**Orchestrator reads** (session startup, before checking the board):
-- Reads unprocessed inbox files from all project repos
-- Categorises: observation, hypothesis, rule, process improvement
-- Acts: merges into domain knowledge, promotes hypotheses, flags blockers
-- Marks files processed with date and action taken
+In-progress observations and discussions happen via card comments on the Kanban board. When the discussion resolves or the card completes, the learned knowledge is written to the appropriate domain file.
 
-### Orchestrator startup sequence (revised)
+### Orchestrator startup sequence
 
 **On every session start, before pulling work:**
 
 1. Read `CLAUDE.md` and `agent-guidelines.md`
-2. **[NEW] Process the knowledge inbox:**
-   - For each project repo: check `knowledge/inbox/PROCESSED.md`
-   - Identify files marked unprocessed
-   - Read each file and categorise
-   - Merge observations into domain knowledge files
-   - Add hypotheses to domain hypotheses file (check for redundancy first)
-   - Identify hypotheses ready for promotion to rules (3+ independent confirmations = rule)
-   - Flag process improvements or blockers for PO attention
-   - Update PROCESSED.md with action taken and date
-   - Report findings: "Read 5 inbox files. Merged 3 into domain knowledge. Promoted 1 hypothesis to rule. Flagged 1 blocker."
+2. **Review knowledge state:**
+   - For each active domain: scan `knowledge/<domain>/` files for recent entries
+   - Flag contradictions, redundant entries, or stale knowledge
+   - Check hypotheses approaching promotion threshold (5+ confirmations)
+   - Flag any demotions needing PO review
+   - Report: "Reviewed 3 domains. 1 hypothesis approaching promotion. 1 stale entry flagged."
 3. Check the board: `bin/board-cli cards` and `bin/board-cli wip-age`
 4. Identify actionable work and brief the PO
 
-### Example PROCESSED.md index
-
-```markdown
-# Processed Inbox Files
-
-| File | Date Processed | Action | Notes |
-|------|---|---|---|
-| 2026-04-28-session-1.md | 2026-04-28 | Merged into domain knowledge | Auth error codes clarified: 402 vs 403 |
-| 2026-04-27-session-2.md | 2026-04-28 | Promoted hypothesis to rule | 3rd independent confirmation: short-form descriptions outperform long-form |
-| 2026-04-27-session-1.md | 2026-04-28 | Flagged for PO decision | Build caching: implement infra improvement or defer? |
-```
-
 ### Why this sequence matters
 
-The knowledge system only compounds if the orchestrator reads it at every session start. This is not a post-hoc task, not something to do "when you have time." It is part of the bootstrap. Without it, agents' learning gets written but not acted on, and the system degrades to every agent learning the same lessons independently.
+The knowledge system only compounds if it is maintained. Agents write to domain files as they work, but without periodic review, entries become redundant, stale facts persist, and contradictions go unnoticed. The orchestrator's startup review is the quality gate that keeps the knowledge system trustworthy.
 
 ## Key References
 

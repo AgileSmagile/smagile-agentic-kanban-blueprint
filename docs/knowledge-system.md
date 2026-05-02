@@ -145,8 +145,8 @@ This takes 60 seconds and makes the next agent on a similar task measurably bett
 2. **Promotion threshold.** 5 confirmations prevents a single lucky observation from becoming policy.
 3. **Demotion with human review.** Rules don't disappear silently. The PO approves downgrades.
 4. **Domain separation.** Agents only load knowledge relevant to their current card, not the entire system's memory.
-5. **Inbox pattern.** No concurrent write conflicts. The orchestrator is the single merge agent.
-6. **Chronological inbox, semantic domains.** Easy to process (sorted by time), easy to query (organised by topic).
+5. **Direct writes, semantic domains.** Learning is captured where agents read it, organised by topic and easy to query.
+6. **Card comments for in-progress discussion.** Observations and insights surface on the card first, then get written to domain files when the work completes.
 
 ## Common Failure Modes
 

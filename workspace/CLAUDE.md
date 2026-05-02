@@ -46,29 +46,18 @@ Never create a card with an empty description. If you can't write a "done when",
 
 ## Compounded learning — contributing back
 
-When you finish work that produced an insight, discovered a pattern, or confirmed/refuted something, write it to the knowledge inbox so the orchestrator can merge it and future agents benefit.
+When you finish work that produced an insight, discovered a pattern, or confirmed/refuted something, write it directly to the relevant domain file so future agents benefit.
 
-### Write an inbox file
+### Write to domain files
 
-Create a file at:
-```
-knowledge/inbox/YYYYMMDD-HHMMSS-sandbox.md
-```
+Add observations directly to the appropriate file:
 
-Format:
-```markdown
----
-domain: <domain>          # e.g. your-product, infrastructure, process
-action: add               # add | promote | demote | update | deprecate
-file: knowledge            # knowledge | hypotheses | rules
-source: sandbox-<date>    # reference for traceability
-agent: sandbox
----
+- **New observation** → append a dated entry to `knowledge/<domain>/knowledge.md`
+- **Pattern detected** → add to `knowledge/<domain>/hypotheses.md` with a testable conjecture
+- **Hypothesis confirmed (5+ evidence)** → promote from `hypotheses.md` to `rules.md`
+- **Rule contradicted** → flag to PO before demoting
 
-<The observation, insight, pattern, or correction — be specific.>
-```
-
-The orchestrator merges inbox files at the start of each session. Even one useful observation compounds over time.
+Even one useful observation compounds over time.
 
 ### What's worth capturing
 

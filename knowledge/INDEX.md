@@ -21,19 +21,17 @@ Load this before starting any card. Identify relevant domains, read their rules.
 2. Read `rules.md` — apply by default, no justification needed
 3. Scan `hypotheses.md` — note if today's work can test or refute any of them
 
-## After completing a card — write to inbox, not domain files
+## After completing a card — write directly to domain files
 
-**Sub-agents**: write to `knowledge/inbox/YYYYMMDD-HHMMSS-{card-id}.md`. Never write directly to domain files. See `inbox/README.md` for format and examples.
+All agents write observations directly to the relevant domain files:
 
-**Orchestrator**: is the single writer to domain files. Merges inbox at session start (see agent-guidelines.md).
+1. **New observation** → append a dated entry to `knowledge/<domain>/knowledge.md`
+2. **Pattern detected** → add to `knowledge/<domain>/hypotheses.md` with a testable conjecture and evidence count
+3. **Hypothesis confirmed (5+ evidence)** → promote: move entry from `hypotheses.md` to `rules.md`, set `source: promoted`
+4. **Rule contradicted** → flag to PO before demoting (requires human review)
+5. **Correction to existing entry** → append a dated correction note below the original entry
 
-### What to capture
-
-- New observations → `action: add`, `file: knowledge`
-- Untested patterns → `action: add`, `file: hypotheses` (include evidence count)
-- Hypothesis confirmed 5+ times → `action: promote`
-- Rule contradicted by new data → `action: demote` (flagged to PO before applying)
-- Correction to an existing entry → `action: update`
+In-progress observations and discussions happen via card comments on the Kanban board. When the discussion resolves, the learned knowledge is written to the domain files.
 
 ## Source types for rules
 

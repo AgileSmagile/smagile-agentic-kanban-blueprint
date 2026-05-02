@@ -52,7 +52,7 @@ The production system this blueprint was extracted from runs multiple orchestrat
 Each orchestrator has its own persona, its own area of focus, and its own runtime. But they all share:
 
 - **The same Kanban board** (via the board CLI)
-- **The same knowledge system** (reading domains, writing to the inbox)
+- **The same knowledge system** (reading and writing to domain files directly)
 - **The same secrets infrastructure** (`pass` store)
 - **The same codebase** (git repos)
 
@@ -85,7 +85,7 @@ Each orchestrator:
 - Checks the board on startup: WIP state, blockers, age
 - Pulls work from Ready within its scope when under WIP target
 - Can dispatch sub-agents (if its runtime supports it)
-- Merges knowledge inbox entries (any orchestrator can do this)
+- Reviews knowledge entries for contradictions and staleness
 - Flags decisions that need the PO's input
 
 An orchestrator might dispatch sub-agents (the CC orchestrator does), or it might work directly (Clawdius handles research and advisory without spawning children). The pattern is flexible.
@@ -96,7 +96,7 @@ An orchestrator might dispatch sub-agents (the CC orchestrator does), or it migh
 - Each targets a specific project directory
 - Work independently within their project scope
 - Update board cards as they progress
-- Write to the knowledge inbox after completing work
+- Write observations directly to domain knowledge files after completing work
 - Report back concisely: what was done, what's blocked, what needs a decision
 
 Sub-agents are **task-based, not persistent**. They're spun up for a card, do the work, and finish. The board carries state between sessions, not the agent's memory.
@@ -106,7 +106,7 @@ Sub-agents are **task-based, not persistent**. They're spun up for a card, do th
 - Separate instances for scratch work, research, or tasks outside the main delivery flow
 - Not dispatched by an orchestrator; opened directly by the PO
 - Can create board cards when work becomes substantial
-- Can contribute to the knowledge system via the inbox
+- Can contribute to the knowledge system by writing directly to domain files
 - Have their own CLAUDE.md with explicit instructions not to replicate orchestrator behaviour
 
 ### The Kanban Board
@@ -129,9 +129,6 @@ A three-tier system that compounds learning across sessions. Shared by all orche
 ```
 knowledge/
 ├── INDEX.md                    # Domain registry
-├── inbox/                      # Write-only queue for any agent
-│   ├── README.md               # Format spec
-│   └── processed/              # Archive of merged entries
 ├── prokanban/                  # Example domain
 │   ├── rules.md                # Apply by default
 │   ├── hypotheses.md           # Test with real work
@@ -142,7 +139,7 @@ knowledge/
     └── knowledge.md
 ```
 
-Any orchestrator or agent can read domain files. Any can write to the inbox. The merge process (inbox → domain files) can be run by whichever orchestrator starts a session first. See [knowledge-system.md](knowledge-system.md) for the full design.
+Any orchestrator or agent can read and write to domain files directly. In-progress observations are captured in card comments; completed learnings are written to the appropriate domain file. See [knowledge-system.md](knowledge-system.md) for the full design.
 
 ## Communication Flow
 
@@ -152,7 +149,7 @@ PO ←→ Clawdius (Discord)
 PO ←→ Satellite workspaces
 
 All orchestrators and agents ←→ Board (cards, comments, WIP)
-All orchestrators and agents ←→ Knowledge system (inbox → merge → domain files)
+All orchestrators and agents ←→ Knowledge system (domain files, direct read/write)
 ```
 
 - **PO ↔ Orchestrators**: the PO interacts with each orchestrator through its native interface. Claude Code in the terminal, Clawdius via Discord. Each orchestrator briefs the PO on board state within its area of focus.

@@ -12,7 +12,7 @@ Before a session ends (whether you're wrapping up deliberately or hitting contex
 
 2. **Move the card if work is complete.** If the card is finished, move it to Shipped/Live or Done (depending on whether it needs review). If it's not finished, leave it in Doing with the comment explaining current state.
 
-3. **Write to the knowledge inbox** if the session produced observations worth preserving. Not every session does. The test: did the agent learn something that would help a future agent working on a different card? If yes, write it. If it's card-specific, the card comment is sufficient.
+3. **Write to the relevant domain files** if the session produced observations worth preserving. Not every session does. The test: did the agent learn something that would help a future agent working on a different card? If yes, write it to `knowledge/<domain>/knowledge.md`. If it's card-specific, the card comment is sufficient.
 
 4. **Flag blockers explicitly.** If work can't continue until something external happens (a credential is created, a decision is made, a dependency ships), block the card with a specific reason. Don't leave an unblocked card in Doing that nobody can actually progress.
 
@@ -97,16 +97,17 @@ Remaining: /api/coaching and /api/ai/rephrase still uncapped.
 Will pick up in next session if card is still in Doing.
 ```
 
-### Knowledge inbox
+### Domain knowledge files
 
 **What goes here:** Observations, patterns, and learnings that apply beyond the current card. Things a future agent working on a *different* card would benefit from knowing.
 
-**Who reads it:** The orchestrator during inbox merge. Eventually becomes part of the domain's knowledge, hypotheses, or rules files.
+**Who reads it:** Any agent that starts work in the relevant domain. The orchestrator reviews for quality and staleness.
 
-**Lifespan:** Permanent (if promoted from inbox to domain files).
+**Lifespan:** Permanent until pruned or superseded.
 
-**Example:**
+**Example** (written to `knowledge/your-product/knowledge.md`):
 ```
+## Auth error codes | card-742 | 2026-04-01
 The AI auth layer returns HTTP 402 (Payment Required) for expired
 trials, not 403 (Forbidden). Use 402 for payment/subscription
 blocks; 403 for permission denials; 429 for rate limits.
@@ -152,7 +153,7 @@ If no, add the missing context. The 30 seconds you spend writing it now saves 10
 
 ## The wrap-up checklist
 
-The "last 60 seconds" section above describes what should happen. In practice, agents skip it. They move to the next card, or the session ends, and the housekeeping never happens. The knowledge inbox is the worst offender: the system is well-designed, but agents rarely write to it after completing work.
+The "last 60 seconds" section above describes what should happen. In practice, agents skip it. They move to the next card, or the session ends, and the housekeeping never happens. Knowledge capture is the worst offender: the system is well-designed, but agents rarely write observations to domain files after completing work.
 
 This is the same pattern that kills retrospectives in human teams. The practice exists. The intent is good. The follow-through is inconsistent because there is no structural enforcement.
 
@@ -166,7 +167,7 @@ The PO types a command (in Claude Code, this is a custom skill invoked via slash
 
 2. **Board hygiene.** Do card positions reflect reality? Are comments needed for context that would otherwise be lost? Cards moving to Done need review guidance so the PO knows what to look at.
 
-3. **Knowledge system.** This is the step agents are most tempted to skip. It requires thinking about what was learned, not just what was done. The prompt: "If a fresh agent started this card tomorrow with no context from you, what would they get wrong?" That is what belongs in the inbox.
+3. **Knowledge system.** This is the step agents are most tempted to skip. It requires thinking about what was learned, not just what was done. The prompt: "If a fresh agent started this card tomorrow with no context from you, what would they get wrong?" That is what belongs in the domain knowledge files.
 
 4. **Memory update.** Memory is the handoff. There is no separate handoff step. If memory is updated properly, the next session self-orients from memory, the board, and the code. One practice instead of three. Project-specific decisions go in project-level memory. Cross-project insights and user preferences go in global memory.
 
@@ -174,11 +175,25 @@ The PO types a command (in Claude Code, this is a custom skill invoked via slash
 
 6. **Weekly knowledge digest (if due).** Check whether 7 or more days have passed since the last digest. If so, compile a review of: knowledge added, hypotheses pending, rules promoted or demoted, memory changes, and stale candidates for pruning. If not due, skip.
 
-7. **Session summary.** Output to chat:
+7. **PO feedback.** The product owner is part of the system. Give them honest feedback on how they contributed to system performance this session, both positive and negative. Highlight what is working so they know what to keep doing. Do not shy away from what needs to improve.
+
+   **What is working well?** Did the PO make a decision that unblocked work? Did the system design hold up? Did the PO stay out of the way when autonomy was the right call? Did card context set agents up for success? Reinforcement is signal.
+
+   **What needs to improve?**
+   - **Process gaps the PO owns.** Did housekeeping get deferred? Did knowledge go stale? Did a transition happen without a migration plan?
+   - **Bottlenecks caused by the PO.** Were cards blocked waiting for a PO decision? Did work age unnecessarily in Done or review?
+   - **Pattern hypocrisy.** Is the PO tolerating in their own system what they would diagnose as dysfunction in a client's?
+   - **Fragmentation and prioritisation.** Did the PO context-switch away from important work? Did that cost the system?
+
+   Tone: direct, no softening, no apology. State what happened, state the consequence, state what would be better. The PO has opted into this feedback loop. It is continuous improvement data applied to the whole system, not just the agents.
+
+   If there is genuinely nothing to say: "No PO feedback" and move on. Do not manufacture feedback.
+
+8. **Session summary.** Output to chat:
    - **Done this session**: what shipped, moved, or meaningfully progressed
    - **What could have gone better**: honest self-critique, not performative humility. Where did the agent waste time? What would it do differently? This is continuous improvement data.
 
-8. **Confirmation.** List all eight steps. Each either acted on or explicitly skipped with a reason. "No updates needed" is fine. "Forgot" is not.
+9. **Confirmation.** List all nine steps. Each either acted on or explicitly skipped with a reason. "No updates needed" is fine. "Forgot" is not.
 
 ### What this replaces
 
@@ -194,12 +209,13 @@ The skill is invoked by typing `/lets-wrap` in the Claude Code prompt. The skill
 
 1. **Git hygiene.** Uncommitted work, unmerged branches, open PRs. Commit what is ready; flag orphans.
 2. **Board hygiene.** Card positions reflect reality? Comments needed? Cards moving to Done need review guidance.
-3. **Knowledge system.** Did the session produce observations a fresh agent on a different card would benefit from? Write to the knowledge inbox if yes.
+3. **Knowledge system.** Did the session produce observations a fresh agent on a different card would benefit from? Write to the relevant domain files if yes.
 4. **Memory update.** Memory IS the handoff. Update if anything about user preferences, project decisions, or cross-project insights changed.
 5. **Environment parity check (if applicable).** Pre-prod/prod divergence. Flag non-breaking changes aging in vetting.
 6. **Weekly knowledge digest (if due).** 7+ days since last digest? Compile one. If not due, skip.
-7. **Session summary.** Done this session; what could have gone better.
-8. **Confirmation.** All eight steps listed; each acted on or explicitly skipped with a reason.
+7. **PO feedback.** Did the PO's actions or inactions contribute to system underperformance? Process gaps, bottlenecks, pattern hypocrisy, fragmentation. Direct, unapologetic, data not criticism.
+8. **Session summary.** Done this session; what could have gone better.
+9. **Confirmation.** All nine steps listed; each acted on or explicitly skipped with a reason.
 
 The `/lets-wrap` skill is the forcing function that ensures this happens consistently. Without it, agents skip the knowledge system (most common) and memory updates (second most common). With it, reflection becomes part of the session boundary, not an optional extra.
 

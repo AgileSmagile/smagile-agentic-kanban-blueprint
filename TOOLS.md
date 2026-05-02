@@ -230,7 +230,7 @@ For a solo operator getting started:
 
 | Component | Monthly cost |
 |-----------|-------------|
-| Claude Code (Pro or Max) | ~£16-75 |
+| Claude Code (Pro or Max) | £75 |
 | Hosting (self-hosted Pi 5) | ~£160 one-time, then ~£1/month electricity |
 | Supabase (free tier) | £0 |
 | Cloudflare (free tier) | £0 |
@@ -242,8 +242,8 @@ For a solo operator getting started:
 | GitHub (free tier) | £0 |
 | Stripe (transaction-based) | £0 until revenue |
 | **Kanban board** | **£0-38** |
-| **Total (month 1)** | **~£16 + ~£160 hardware + board** |
-| **Total (month 2+)** | **~£16 + board** |
+| **Total (month 1)** | **£75 + ~£160 hardware + board** |
+| **Total (month 2+)** | **~£75 + board** |
 
 The Kanban board is the variable. You can start with a free tool (Trello, GitHub Projects) and the patterns still apply. The board CLI would need adapting, but the operating model doesn't change.
 

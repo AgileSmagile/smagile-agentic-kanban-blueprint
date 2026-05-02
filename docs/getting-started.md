@@ -191,4 +191,4 @@ This repo uses lowercase filenames for readability. If your platform requires up
 2. **Not using the board.** If work happens off-board, the system breaks. The board is the source of truth, not conversation history.
 3. **Empty-description cards.** Every card needs What, Why, and Done When. No exceptions. A card without a description is a card no future agent can act on.
 4. **Waiting for the agent to ask.** If you're directing every action, you're not getting the benefit of autonomy. Let the agent pull from the board.
-5. **Not writing to the knowledge inbox.** The system only compounds if agents contribute observations after finishing work. No inbox entries = no learning over time.
+5. **Not writing to domain knowledge files.** The system only compounds if agents contribute observations after finishing work. No knowledge entries = no learning over time.

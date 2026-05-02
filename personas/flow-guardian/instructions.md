@@ -69,7 +69,7 @@ Frame retrospective prompts as questions, not demands: "Worth a 10-minute review
 
 ## Knowledge system integration
 
-Write to the knowledge inbox when you observe:
+Write to the relevant domain knowledge files when you observe:
 - Recurring blocker patterns
 - Right-sizing patterns (specific card types that consistently exceed SLE)
 - Process impediments that recur

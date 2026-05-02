@@ -78,14 +78,13 @@ Specifications for diagrams and visuals to accompany the blueprint. Each brief d
 4. Agent starts work with institutional context loaded
 
 **After panel (end of task):**
-1. What did I observe? → write to knowledge inbox
-2. Did I confirm or contradict a hypothesis? → write promote/demote entry
-3. Orchestrator merges inbox next session → domain files updated
-4. Next agent starts smarter than this one finished
+1. What did I observe? → write directly to domain knowledge file
+2. Did I confirm or contradict a hypothesis? → update hypotheses.md or promote to rules.md
+3. Next agent reads updated domain files → starts smarter than this one finished
 
 **Key visual cues:**
 - Clear before/after separation
-- The "inbox" as a physical mailbox or queue metaphor
+- Domain files as the shared learning layer (same files read before, written after)
 - An arrow looping from "after" back to "before" showing the compounding effect
 - Time arrow showing sessions accumulating
 
@@ -182,28 +181,29 @@ Backlog → Ready → Doing → [branch point] → Shipped/Live → Closed → (
 
 ---
 
-## 7. Inbox Pattern (Multi-Agent Knowledge Contribution)
+## 7. Multi-Agent Knowledge Contribution
 
 **Where it goes:** docs/knowledge-system.md, docs/cross-runtime.md
 **Content format:** repo diagram, talk slide
 **Priority:** lower; supports the cross-runtime story
 
-**What it communicates:** How multiple agents (different runtimes, different sessions) all contribute to the same knowledge system through the inbox, with the orchestrator as the single merge agent.
+**What it communicates:** How multiple agents (different runtimes, different sessions) all contribute to the same knowledge system by writing directly to shared domain files.
 
-**Layout:** Multiple agents on the left, inbox in the middle, domain files on the right
+**Layout:** Multiple agents on the left, domain files on the right, card comments as the in-progress discussion layer
 
 **Elements:**
-- Left: CC sub-agent, Clawdius (Discord), satellite workspace (each writing a file to the inbox)
-- Centre: knowledge/inbox/ directory with timestamped .md files stacking up
-- Right: Orchestrator reading inbox, merging into domain files (rules.md, hypotheses.md, knowledge.md)
-- Bottom: processed/ archive
+- Left: CC sub-agent, Clawdius (Discord), satellite workspace (each with a line to domain files)
+- Centre: card comments (in-progress observations and discussion)
+- Right: domain files (rules.md, hypotheses.md, knowledge.md) organised by domain
+- Arrows: agents read domain files before work, write to them after; card comments feed into domain files on completion
 
 **Key visual cues:**
-- Multiple agents writing concurrently (no conflicts, timestamp-based naming)
-- Single merge point (orchestrator)
-- Arrow from processed back to "available to all agents" showing the cycle
+- Multiple agents reading and writing to the same domain files
+- Card comments shown as the transient discussion layer
+- Domain files shown as the permanent learning layer
+- Bidirectional arrows between agents and domain files
 
-**Caption:** "Any agent can contribute. One agent merges. No conflicts. The system learns from everyone."
+**Caption:** "Any agent can contribute. Learning is written where agents read it. The system learns from everyone."
 
 ---
 

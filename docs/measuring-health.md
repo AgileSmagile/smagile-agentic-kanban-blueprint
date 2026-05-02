@@ -28,7 +28,7 @@ If yes, the system is compounding. Agents are getting better at the work because
 
 If no, check two things:
 1. **Card quality.** Are descriptions still vague? Agents that have to figure out what "improve the dashboard" means will always be slower than agents given specific criteria.
-2. **Knowledge capture.** Is the knowledge inbox being used? If agents aren't writing observations after completing cards, the system isn't learning. Each session starts from the same baseline instead of building on what came before.
+2. **Knowledge capture.** Are agents writing to domain files? If agents aren't writing observations after completing cards, the system isn't learning. Each session starts from the same baseline instead of building on what came before.
 
 **What to look for:**
 - WIP age trending downward (or stable at a healthy level)
@@ -38,7 +38,7 @@ If no, check two things:
 **Red flags:**
 - WIP age trending upward with no change in card complexity
 - The same correction being given to agents in multiple sessions (should have been captured as a rule)
-- Knowledge inbox that hasn't been written to in the last 5 sessions
+- Domain knowledge files that haven't been updated in the last 5 sessions
 
 ## After 20 sessions: is rework decreasing?
 

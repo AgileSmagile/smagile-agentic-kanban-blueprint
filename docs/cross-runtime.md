@@ -23,7 +23,7 @@ Both runtimes read the same files. Both interact with the same Kanban board. Bot
 
 | Component | Used by | How |
 |-----------|---------|-----|
-| **Knowledge system** (knowledge/) | Both | Read rules/hypotheses before work; write to inbox after |
+| **Knowledge system** (knowledge/) | Both | Read rules/hypotheses before work; write to domain files after |
 | **Board CLI** (bin/board-cli) | Both | Any agent with bash access can run it |
 | **Operating model** (agent-guidelines.md) | Both | Loaded into context at startup, regardless of runtime |
 | **Persona files** (soul.md, instructions.md) | Both | Loaded as system context; format is plain markdown |
@@ -87,12 +87,15 @@ Both runtimes:
 
 ### After work
 
-Both runtimes write to the knowledge inbox:
+Both runtimes write directly to the relevant domain files in the knowledge system:
+
 ```
-knowledge/inbox/YYYYMMDD-HHMMSS-{source}.md
+knowledge/<domain>/knowledge.md    # New observations
+knowledge/<domain>/hypotheses.md   # Patterns under test
+knowledge/<domain>/rules.md        # Confirmed patterns
 ```
 
-The orchestrator (whichever runtime it runs on) merges inbox entries at session start. It doesn't matter which runtime generated the entry.
+It doesn't matter which runtime wrote the entry. The domain files are the shared learning layer.
 
 ## Design principles that enable this
 
@@ -106,7 +109,7 @@ Agents don't interact with the board through runtime-specific APIs. They all use
 
 ### 3. The knowledge system uses the filesystem as the protocol
 
-No database, no API, no message queue. Files in directories. The inbox pattern (write a file, orchestrator reads and merges) works regardless of which process wrote the file.
+No database, no API, no message queue. Files in directories. Any agent that can read and write text files can participate in the knowledge system, regardless of runtime.
 
 ### 4. Persona files separate identity from capability
 
@@ -120,12 +123,12 @@ Soul files define who the agent is (values, character, communication style). Ins
 
 If you wanted to add a third agent runtime (say, a scheduled cron agent, or an agent on a different LLM provider):
 
-1. **Give it access to the knowledge directory.** Read for rules/hypotheses, write for inbox entries.
+1. **Give it access to the knowledge directory.** Read for rules/hypotheses, write for observations and learnings.
 2. **Give it access to the board CLI.** Or implement the same API calls in whatever language/framework the runtime uses.
 3. **Load the relevant persona files** into its system context.
 4. **Load the operating model** (or a subset relevant to its role) into its system context.
 
-That's it. The new agent immediately benefits from every rule, hypothesis, and observation that existing agents have accumulated. And its own contributions flow back through the inbox to benefit everyone else.
+That's it. The new agent immediately benefits from every rule, hypothesis, and observation that existing agents have accumulated. And its own contributions flow back to the domain files to benefit everyone else.
 
 ## Why this matters
 

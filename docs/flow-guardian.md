@@ -126,9 +126,9 @@ Flow observations are prime candidates for the knowledge system:
 - **Recurring blocker patterns** → knowledge entry, potentially a hypothesis ("external API dependencies block cards >40% of the time")
 - **Right-sizing patterns** → knowledge entry ("cards involving PDF generation consistently exceed the SLE; always break these into backend + rendering")
 - **Process impediments** → knowledge entry, potentially a rule if confirmed 5+ times ("Done queue review must happen within 24 hours")
-- **SLE calibration** → if the current SLE is consistently missed, that's data for adjusting it. Write an inbox entry to update the prokanban domain.
+- **SLE calibration** → if the current SLE is consistently missed, that's data for adjusting it. Write an entry to `knowledge/prokanban/knowledge.md`.
 
-Every flow observation that an agent makes should flow through the knowledge inbox. Over time, the knowledge system accumulates a picture of where flow breaks down and what works. This is the mechanism by which the system learns to be better at flow, not just better at delivery.
+Every flow observation that an agent makes should be written to the relevant domain file. Over time, the knowledge system accumulates a picture of where flow breaks down and what works. This is the mechanism by which the system learns to be better at flow, not just better at delivery.
 
 ## Further reading
 

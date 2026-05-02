@@ -27,7 +27,7 @@ You're operating in this system. Self-orient and pull work.
 
 4. **[knowledge/INDEX.md](knowledge/INDEX.md)** — What has been learned
    - Read domain-specific rules before starting a card
-   - Add observations to inbox after completing a card
+   - Write observations to domain files after completing a card
 
 **Then:** Check the board. Pull the oldest unblocked card. Declare intent and start.
 
@@ -50,7 +50,7 @@ Your user wants to understand whether this system is relevant to them. Here's wh
 - **Who cares:** Teams wanting continuous delivery without constant human gates; leadership worried about quality regressions
 
 **Learning Systems** (how agents get smarter)
-- **[Session boundaries (Knowledge system section)](docs/session-boundaries.md#the-weekly-knowledge-digest)** — Knowledge inbox, rules/hypotheses, weekly digests
+- **[Session boundaries (Knowledge system section)](docs/session-boundaries.md#the-weekly-knowledge-digest)** — Knowledge capture, rules/hypotheses, weekly digests
 - **[Knowledge system](docs/knowledge-system.md)** — How observations compound into patterns that guide future decisions
 - **Who cares:** Anyone running agents across multiple sessions; organizations trying to systematize learning
 
@@ -87,7 +87,7 @@ Your user wants to understand whether this system is relevant to them. Here's wh
 
 **Knowledge & Learning**
 - [Knowledge system](docs/knowledge-system.md) — Three-tier learning (knowledge/hypotheses/rules), promotion thresholds, decay
-- [Session boundaries (Knowledge section)](docs/session-boundaries.md) — Knowledge inbox, rules vs hypotheses, weekly digests
+- [Session boundaries (Knowledge section)](docs/session-boundaries.md) — Knowledge capture, rules vs hypotheses, weekly digests
 
 **Patterns & Roles**
 - [Writing agent personas](docs/writing-personas.md) — Soul (identity, values) vs instructions (constraints, responsibilities)

@@ -173,7 +173,7 @@ This system was built on a specific set of tools. See [TOOLS.md](TOOLS.md) for t
 
 Key components:
 - **[Claude Code](https://claude.ai/code)**: the AI agent platform (can read/write code, run commands, interact with APIs)
-- **A Kanban board with an API**: any board tool works. This repo includes a CLI adapted for [Businessmap](https://businessmap.io), but the patterns are tool-agnostic.
+- **A Kanban board with an API**: the patterns are tool-agnostic but the board tool's capabilities matter. This repo includes a CLI adapted for [Businessmap](https://businessmap.io), which was chosen because its API enables the automations this system depends on: native WIP limits, blocked-in-place semantics, two-level workflows (initiatives + cards), and built-in analytics (cycle time, throughput, SLE tracking). You can achieve similar results with Trello, Jira, or Azure DevOps using plugins and add-ons, but expect to bridge capability gaps, particularly around WIP enforcement and flow analytics. A homemade board will work for the core patterns but will likely lack the API surface needed for full automation.
 - **[Supabase](https://supabase.com)**: database and authentication (free tier)
 - **[Cloudflare](https://cloudflare.com)**: networking and tunnels for self-hosted services (free tier)
 - **[n8n](https://n8n.io)**: workflow automation between services (self-hosted, free)
@@ -184,6 +184,26 @@ This blueprint was extracted from a live system run by [smagile](https://smagile
 
 The operating model has been iterated through real delivery sessions since early 2026. The knowledge system, board integration patterns, and persona definitions are all products of that iteration.
 
+## Model selection and context cost
+
+Running this system has a startup tax: every session loads the CLAUDE.md, agent guidelines, and relevant knowledge files before any work begins. That context cost varies by agent type:
+
+| Agent type | Startup context | Notes |
+|-----------|----------------|-------|
+| Satellite workspace (lightest) | ~230 lines / ~2,000 words | Scratch work, research, one-off tasks |
+| Product agent (typical) | ~220-380 lines / ~2,300-2,900 words | Delivery work within a specific project |
+| Orchestrator (heaviest) | ~860 lines / ~8,700 words | Full operating model, board integration, knowledge system, dispatch policies |
+
+This is the trade-off for having autonomous agents that follow procedures without being prompted: the procedures have to be in context. The alternative is a lighter context window and more human steering, which defeats the point.
+
+**Model recommendations:**
+
+- **Haiku** is tempting for cost reasons but is not appropriate for this system. The procedural burden (WIP limits, card standards, knowledge rituals, autonomy boundaries) requires a model that can hold and apply complex instructions reliably. Haiku's desire to deliver fast results cheaply means it is the most likely model to forget key procedures. It can work for targeted refinement tasks bootstrapped by a human, but not for autonomous flow-based delivery.
+- **Sonnet** is the recommendation for general activity and automated work. It handles the procedural context well at a reasonable cost. Particularly recommended during the known Anthropic high-cost period (1pm-7pm UK time, Monday to Friday), where token usage can be 3-4x more expensive than off-peak. Anthropic have acknowledged that costs increase during peak hours but have not publicised by how much.
+- **Opus** is excellent for work requiring deep thought: architectural decisions, complex refinement, and especially demanding builds. The mistake is running it as your default model for everything because it is Anthropic's flagship. Most delivery work does not need Opus, and Sonnet will handle it well. Be intentional: choose Opus when the task genuinely benefits from deeper reasoning, not as a blanket setting. If you are running five agents continuously on Opus during peak hours, you will hit rate limits regularly and burn through your allocation faster than you expect.
+
+You are not locked to a single model. You can set the model per agent based on the work you expect it to do, and you can change it mid-session. OpenClaw agents can be reconfigured between tasks; Claude Code requires a model switch via the command line interface or settings.
+
 ## Runtime compatibility
 
 The files here aren't locked to one AI platform. In the production system, the same operating model, knowledge system, and board are used simultaneously by:
@@ -192,6 +212,12 @@ The files here aren't locked to one AI platform. In the production system, the s
 - **[OpenClaw](https://openclaw.ai) agents** (Discord-based: advisory, monitoring, and coordination). OpenClaw is a free, always-on agentic AI assistant. It runs for free, though you get the best results when pairing it with a paid LLM service.
 
 Both platforms read the same knowledge, interact with the same board, and contribute observations back to the same learning system. See [docs/cross-runtime.md](docs/cross-runtime.md) for how this works.
+
+## What is OpenClaw?
+
+[OpenClaw](https://openclaw.ai) is a free, always-on agentic AI assistant that runs on Discord. In this system, OpenClaw agents and Claude Code agents consume the same files: agent guidelines, knowledge system, persona definitions, and board CLI. The primary difference is startup behaviour: OpenClaw auto-loads uppercase files (`SOUL.md`, `AGENTS.md`) by default, while Claude Code auto-loads `CLAUDE.md`. Both can be configured to read whatever you need.
+
+OpenClaw agents operate on a heartbeat (similar to a loop): they check in periodically, review the board, and act. Claude Code agents are session-based, started by the human and running until the session ends. The coordination mechanism is the same for both: the Kanban board, card comments, and knowledge system. You can run both runtimes against the same board with different agent personalities and areas of focus. See [cross-runtime.md](docs/cross-runtime.md) for the full details.
 
 ## Acknowledgements
 
@@ -202,6 +228,8 @@ Specific patterns in the operating model (time-decay on knowledge, failure-first
 The threshold-based specialist dispatch pattern and task-level learning (idea 6 above) were informed by the ECAP/TECAP experience capsule framework in [ClawCode](https://github.com/deepelementlab/clawcode) by DeepElementLab, reinterpreted for async board-driven collaboration and adapted to the specific constraints of this system.
 
 The compaction resilience pattern (PreCompact/PostCompact hooks for keeping safety rules in context) was inspired by the precompact hook design in [MemPalace](https://github.com/MemPalace/mempalace), which persists memory to storage before context compression, reinterpreted here as a mechanism for re-injecting critical instructions rather than persisting data.
+
+I would also like to credit Andy Kidd for encouraging me to consider a £75 anthropic subscription as an investment in learning, which undoubtedly caused me to delve far deeper into this experiment than exploring using OpenClaw, alone.
 
 The current architecture is a product of those starting points combined with sustained personal experimentation, real delivery sessions, and the application of ProKanban principles to agentic workflows.
 
