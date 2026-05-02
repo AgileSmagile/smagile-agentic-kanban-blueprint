@@ -59,7 +59,7 @@ The board is the foundation. Everything else builds on it.
 | [GitHub Projects](https://github.com) | Yes (GraphQL) | Yes | Basic | Good if your code is already on GitHub. Columns and cards, but no native WIP limits. |
 | [Trello](https://trello.com) | Yes (REST) | Yes (limited) | Basic | Easy to set up. API is straightforward. No native WIP limits. |
 | [Linear](https://linear.app) | Yes (GraphQL) | Yes (up to 250 issues) | Good | Clean API, good for software teams. Has workflow states. |
-| [Businessmap](https://businessmap.io/signup-partners?referral_code=smagile90referral) | Yes (REST) | [90-day trial](https://businessmap.io/signup-partners?referral_code=smagile90referral), then from ~£38/month (5 users) | Excellent | Native WIP limits, blocked-in-place semantics (cards stay in their current column when blocked, rather than moving to a separate blocked column), two-level workflow (initiatives + cards). This is what the production system uses. |
+| [Businessmap](https://businessmap.io/signup-partners?referral_code=smagile30referral) | Yes (REST) | [30-day trial](https://businessmap.io/signup-partners?referral_code=smagile30referral) ([request 90-day](<!-- TODO: n8n form URL -->)), then from ~£38/month (5 users) | Excellent | Native WIP limits at column, grouped column, swimlane, and user level.  Blocked-in-place semantics.  Multi-layer workflow (e.g. initiatives + cards).  This is what the production system uses. |
 | [Jira](https://www.atlassian.com/software/jira) | Yes (REST) | Yes (up to 10 users) | Good | Feature-rich but complex. If you already use it, it works. |
 
 **Start free.** You can always switch later. The operating model doesn't change; only the board CLI script needs adapting.

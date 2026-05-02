@@ -23,7 +23,7 @@ Upfront honesty: this isn't free to run.
 | What you need | Cost | Notes |
 |---------------|------|-------|
 | AI agent (Claude Code) | ~75/month | Min spec = Anthropic's Max subscription (~£75/month), but use the appropriate model for the job else you'll consistently hit rate limits on heavy agentic workloads. (Note that their Pro (~£16/month) is impractical for this system.)  Other AI tools with similar capabilities may work. |
-| Kanban board | £0 to ~£38/month | Required. Free: Trello, GitHub Projects (or build your own). Paid: [Businessmap](https://businessmap.io/signup-partners?referral_code=smagile90referral) (from ~£38/month for 5 users, 90-day trial) has the best Kanban semantics and API. |
+| Kanban board | £0 to ~£38/month | Required. Free: Trello, GitHub Projects (or build your own). Paid: [Businessmap](https://businessmap.io/signup-partners?referral_code=smagile30referral) (from ~£38/month for 5 users, 30-day trial; [request a 90-day trial](<!-- TODO: n8n form URL -->)) has the best Kanban semantics and API. |
 | Everything else | £0 | Database, networking, automation, monitoring all have free tiers. |
 | Hardware (optional) | ~£160 one-time | Only if you self-host instead of using cloud services.  Consider Netlify for cloudhosting as an alternative (see tools). |
 | **Minimum to start** | **~£75/month** | AI subscription + free board tool. |
@@ -239,10 +239,27 @@ I would also like to credit Andy Kidd for encouraging me to consider a £75 anth
 
 The current architecture is a product of those starting points combined with sustained personal experimentation, real delivery sessions, and the application of ProKanban principles to agentic workflows.
 
+## Get in touch
+
+This is a free, open resource.  No catch, no paywall, no email gate.  If you find it useful and want to talk about agentic delivery, Kanban at scale, or how to adapt this to your setup, I'm happy to help.
+
+**James Farley** — [LinkedIn](https://www.linkedin.com/in/jsfarley/)
+
+If you end up adapting any part of the blueprint, I would genuinely love to hear what you found useful, what you did not take, and any suggestions for improving it.  This thing gets better when people use it in contexts I have not thought of.
+
+### Supporting this project
+
+If you do decide to use any of the tools referenced here, using the affiliate links in this README and [TOOLS.md](TOOLS.md) helps support ongoing development at no additional cost to you.  In some cases you get a better deal:
+
+- **[Businessmap](https://businessmap.io/signup-partners?referral_code=smagile30referral)** — this link gives you a 30-day free trial (their public site offers 14 days).  If you would like a 90-day trial, [request one here](<!-- TODO: n8n form URL -->) and I will send it straight to your inbox.
+- **[UptimeRobot](https://uptimerobot.com/?rid=5999e69f2482fe)** — free tier is generous; the link supports this project at no cost to you.
+
+That's it.  No pressure, no expectation.  The blueprint is the thing; the rest is a bonus.
+
 ## Licence
 
-[CC BY-SA 4.0](LICENSE). Use it, adapt it, share it. Attribution appreciated.
+[CC BY-SA 4.0](LICENSE). Use it, adapt it, share it.  Attribution appreciated.
 
 ---
 
-Built with [Claude Code](https://claude.ai/code). Coordinated with [Businessmap](https://businessmap.io). Grounded in [ProKanban](https://prokanban.org)'s Kanban strategy.
+Built with [Claude Code](https://claude.ai/code).  Coordinated with [Businessmap](https://businessmap.io).  Grounded in [ProKanban](https://prokanban.org)'s Kanban strategy.

@@ -55,7 +55,7 @@ Every tool below was chosen because it solved a real problem in the system. This
 
 **Alternatives:** Any Kanban board with a REST API works. The patterns in this repo are tool-agnostic; the CLI is Businessmap-specific but the structure is adaptable. Trello, Jira, Linear, and GitHub Projects all have APIs, though their Kanban semantics vary.
 
-**Get started:** [90-day free trial](https://businessmap.io/signup-partners?referral_code=smagile90referral) (referral link, extended from the standard 14-day trial)
+**Get started:** [30-day free trial](https://businessmap.io/signup-partners?referral_code=smagile30referral) (referral link, extended from the standard 14-day trial).  [Request a 90-day trial](<!-- TODO: n8n form URL -->) if you want more runway.
 
 ---
 
@@ -167,7 +167,7 @@ Every tool below was chosen because it solved a real problem in the system. This
 
 **Free tier:** Yes. 50 monitors, 5-minute check intervals. Enough for a small portfolio of services.
 
-**Get started:** [uptimerobot.com](https://uptimerobot.com)
+**Get started:** [uptimerobot.com](https://uptimerobot.com/?rid=5999e69f2482fe)
 
 ---
 
