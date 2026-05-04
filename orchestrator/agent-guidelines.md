@@ -70,6 +70,23 @@ This is a minimum spec, not a template to fill robotically. A one-liner is fine 
 10. Move to Closed when done
 11. **Auto-archive**: cards in Closed are archived after 14 days. This keeps the board clean without manual housekeeping. If your board tool supports automation rules, configure this as a scheduled policy rather than relying on agents to remember.
 
+### Card types
+
+Not all cards on the board are delivery work.  Agents create communication cards, monitoring systems raise alerts, and test specialists file findings.  If these are indistinguishable from delivery cards, flow metrics (cycle time, throughput) become unreliable.
+
+Card types solve this structurally.  If your board tool supports typed cards, classify them:
+
+| Type | Purpose | Completion routing | Notes |
+|---|---|---|---|
+| *(default/untyped)* | Standard delivery work raised by humans or agents | Normal workflow (Shipped/Live) | The baseline for all flow metrics |
+| Comms | Agent-to-agent communication via inbox cards | Closed (never Shipped/Live) | Not delivery work.  Must not appear in flow metrics. |
+| Test Finding | Findings from audits or deep testing | Normal workflow | Real work, but distinguishable from human-raised cards |
+| Monitoring Alert | Automated notifications: test failures, DNS changes, service failures | Normal workflow | Real work, but filterable as automated vs human-initiated |
+
+**Why this matters for flow:**  Comms cards are a workaround for agents not being able to directly communicate with each other.  They are not delivery work.  If they appear in your cycle time calculations, your metrics will be faster than reality (comms cards are created and closed within minutes) and your throughput will be inflated.  Monitoring alerts are real work but distinguishable, enabling you to analyse how much of your throughput is reactive vs planned.
+
+**Implementation:**  Card type is structural and filterable in board analytics, unlike tags or colours which are fragile and inconsistent.  If your board tool supports card types via API, set the type on creation.  Agents creating inbox cards must set the Comms type after creation.  Automated workflows (test runners, monitors) must set the appropriate type when creating cards.
+
 ### WIP limits
 
 <!-- Adapt these numbers to your team size and throughput -->

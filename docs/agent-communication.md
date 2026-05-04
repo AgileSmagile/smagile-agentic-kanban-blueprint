@@ -53,6 +53,8 @@ Agent A sees response on next poll
 
 The inbox card is transient — processed and closed, not kept.
 
+**Card typing:**  Inbox cards are communication, not delivery work.  If your board tool supports card types, set inbox cards to the Comms type after creation (see [Card types](../orchestrator/agent-guidelines.md#card-types) in the agent guidelines).  This prevents inbox cards from polluting flow metrics.  A system that creates 20 inbox cards a day and routes them to Closed within minutes will show artificially fast cycle times and inflated throughput if those cards are indistinguishable from delivery work.
+
 ## The routing convention
 
 **The only thing that goes in square brackets in card comments is a project prefix or agent identifier.** This is the convention the Board Watcher relies on. It must be honoured.

@@ -81,6 +81,19 @@ The Flow Guardian prompts for retrospective activity on a regular cadence, not j
 | **After an SLE breach** | "Card #[id] breached its SLE by [N days]. Root cause: [blocked/too big/waiting for review]. Should we adjust anything to prevent this recurring?" |
 | **After a blocker is resolved** | "Card #[id] was blocked for [N days] by [reason]. Is this a systemic issue? Should we create a knowledge entry or change a policy?" |
 
+### Flow metrics hygiene
+
+Flow metrics are only useful if they measure delivery work.  In an agentic system, the board will contain cards that are not delivery: communication cards between agents, monitoring alerts, test findings.  If these are included in cycle time and throughput calculations, your metrics will lie.
+
+**Card types are the mechanism.**  If your board tool supports typed cards, use them to classify non-delivery items (see [Card types](../orchestrator/agent-guidelines.md#card-types) in the agent guidelines).  Filter metrics calculations to exclude Comms cards.  Monitoring Alerts and Test Findings are real work but should be analysable separately from planned delivery.
+
+**What to watch for:**
+- Cycle time suddenly dropping without a process change (likely Comms cards being created and closed within minutes)
+- Throughput spiking without a corresponding increase in shipped features (same cause)
+- SLE compliance improving without evidence of faster delivery (filtered vs unfiltered metrics diverging)
+
+If your board tool's analytics do not support filtering by card type, track untyped cards only and use a naming convention (e.g. prefix Comms cards with `[Comms]`) to manually exclude them from reporting.
+
 ### Process impediment detection
 
 The Flow Guardian should proactively flag when the PO's behaviour is impeding flow. This requires radical candour, delivered constructively:
