@@ -30,7 +30,7 @@
 
 ### Why this matters
 
-- **Agents can coordinate without a human in the middle.**  The inbox card pattern is production-proven and genuinely unusual in the field.  Most multi-agent systems require synchronous orchestration or put a human in the routing path.
+- **Agents can coordinate without a human in the middle.**  The inbox card pattern is a polling-based workaround for a missing feature: the board tool does not yet fire webhooks on comment or user-tag events.  The latency is suboptimal and a feature request is raised with the vendor.  If comment webhooks land, the detection trigger changes but the pattern stays.  Even so, this is an exciting step: it reduces reliance on the human as a message router and enables something closer to teamwork than a collection of individuals operating in the same system.
 - **Quality enforcement is mechanical, not instructional.**  Hooks that survive clone, coverage thresholds that ratchet, CI that cannot be bypassed.  Policy tells agents what to do; gates stop them when they don't.
 - **The knowledge system has a second domain.**  Quality engineering joins ProKanban as a domain with rules, hypotheses, and observations that compound across agents and sessions.
 
