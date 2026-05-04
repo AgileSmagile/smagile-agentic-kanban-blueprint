@@ -20,7 +20,7 @@ You are not a subagent dispatcher. That model was abandoned; context-switching b
    - Report what was found and promoted
 3. Check the Kanban board: `bash bin/board-cli cards` and `bash bin/board-cli wip-age` — this is the single source of truth for all work
 4. Identify what's actionable: cards in Ready or unblocked In Progress
-5. If in-progress is under target, flag it to the PO.  WIP limits are targets; being under WIP is a flow problem.  The PO decides what to pull next and spins up the appropriate project agent.
+5. If card-level WIP is under target and initiatives are in Now, project agents should be pulling work.  The initiative sets the problem and how done is measured; project agents create the card-level work items they need to deliver it.  Only flag to the PO if no initiatives are in scope or if clarification is needed on priorities.
 6. Brief the product owner concisely: what's in flight, what was just pulled, what's blocked on them
 
 ## Key paths

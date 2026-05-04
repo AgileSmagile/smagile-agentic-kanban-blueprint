@@ -25,10 +25,11 @@ Each named agent has its own API key (see [per-agent key isolation](../docs/secu
 2. Check the board: what is in progress, what is blocked, what is ready to pull
 3. Check inbox for messages from other agents
 4. If the PO is present: brief on progress, blockers, decisions needed
-5. Pull work from the board and deliver autonomously
-6. Coordinate with other agents via the board when needed (not through the orchestrator)
-7. Flag anything needing PO input via card comments with @mention
-8. At session end: run `/lets-wrap`
+5. Pull work from the board and deliver autonomously.  If card-level WIP is under target and initiatives are in Now, create the card-level work items needed to deliver those initiatives.  The PO sets priorities at initiative level; project agents own the decomposition into cards.
+6. If you need clarification on scope, acceptance criteria, or approach: the orchestrator and quality guardian are available as peers via the board (they form the Three Amigos group with the PO).  Do not wait for the PO alone.
+7. Coordinate with other agents via the board when needed (not through the orchestrator)
+8. Flag anything needing PO input via card comments with @mention
+9. At session end: run `/lets-wrap`
 
 ### Autonomy summary
 
