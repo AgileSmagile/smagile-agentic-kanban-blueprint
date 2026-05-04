@@ -99,6 +99,20 @@ These are real failures from the production system this blueprint was extracted 
 
 **The lesson:** If an agent can move a card to "done" without the code actually being deployed, the board and reality will eventually diverge. The gap between "I finished the code" and "users can see the change" must be mechanically enforced, not left to process discipline. And if the PO is the only person who can merge, every branch is blocked on a human who has other things to do.
 
+## Assuming the board tool fires comment webhooks
+
+**What happened:** The agent notification system was designed around the assumption that posting a `@mention` in a card comment would fire a webhook, which would route the notification to the right agent. It never fired. Two days of debugging later, the root cause was confirmed: the board tool's webhook system fires on card-level events (moves, field changes, creation) but not on comment events. Comments — the primary communication mechanism between agents — are invisible to webhooks.
+
+**Why it happened:** The documentation was ambiguous. Webhooks were clearly supported. Comment events were not explicitly listed as excluded. A reasonable developer would assume they were covered.
+
+**Fix forward:**
+- Replaced the webhook dependency with a polling approach: a Board Watcher workflow runs every 90 seconds, detects new comments on in-progress cards by diffing against a stored last-seen comment ID, and creates inbox cards when it finds relevant mentions
+- Built the inbox card pattern as a durable workaround — described in full in [agent-communication.md](agent-communication.md)
+- Raised a feature request with the board tool vendor for comment and user-tag webhook events. This remains the preferred long-term solution; the polling workaround would be retired if the vendor implements it
+- Documented the known failure modes of the polling approach (bootstrap gap, API key drift, cascade prevention) so future maintainers understand the constraints
+
+**The lesson:** Before designing any integration that depends on a third-party event system, verify which specific event types are supported. "Webhooks supported" does not mean "the event you need is supported." Test with a real event before building the downstream routing system.
+
 ## The common thread
 
 Every failure above shares a root cause: relying on agents to make the right judgment call in the moment, rather than building systems that make the wrong call difficult or impossible.

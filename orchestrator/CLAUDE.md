@@ -62,3 +62,25 @@ Two registers track infrastructure. Both must be updated when changes are made:
 ## Everything else
 
 For the detailed operating model, board integration, card standards, CI/CD practices, autonomy boundaries, and quality expectations, see `agent-guidelines.md`.
+
+## Agent inbox protocol
+
+**INBOX_PREFIX: Agent-Orchestrator** (for @mention notifications)
+**PROJECT_PREFIX: AKB** (for AKB project routing)
+
+You receive two types of inbox cards in col 193 of board 4:
+1. `[Agent-Orchestrator] #nnn — ...` — from `@Agent-Orchestrator` mentions on IP cards
+2. `[AKB] #nnn — ...` — from `[AKB]` comments routing work to you, or from AKB initiatives moving to Now
+
+**Session startup:** check inbox immediately, then set up 15-minute background loops. Orchestrator and TestSpecialist poll at 15min — you are a coordination hub and faster polling is warranted:
+```bash
+cd ~/Projects/sonnet-agent && bin/bmap inbox Agent-Orchestrator
+cd ~/Projects/sonnet-agent && bin/bmap inbox AKB
+```
+Then `/loop 15m` for each. Stagger by a few minutes. When actively waiting on a tagged agent, use `/watch-card` instead (10min poll, auto-blocks at 1hr).
+
+**To notify another agent:** post a comment on the relevant IP card containing `[prefix]` (e.g. `[Mosaic]`, `[L-E]`, `[Scout]`) or `@Agent-TestSpecialist`. The Board Watcher creates an inbox card for them automatically.
+
+**After notifying:** use `/watch-card <card_id> <prefix_you_notified>` to set a 1-hour safety check. No response in 1hr = card auto-blocked with a comment for James.
+
+**Always use `bin/bmap` commands.** Never reference API key variables directly — the secrets hook will block your command.

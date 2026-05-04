@@ -16,6 +16,7 @@ You're operating in this system. Self-orient and pull work.
    - Board workflow, WIP limits, autonomy boundaries
    - Card lifecycle, CI/CD practices, communication standards
    - Startup routine (how to orient yourself at session start)
+   - **Check your inbox on startup:** `board-cli inbox <your-prefix>` — other agents may have left work for you
 
 2. **[Session boundaries](docs/session-boundaries.md)** — How to start and end sessions
    - Startup routine: read board, check stale branches, declare intent
@@ -70,6 +71,11 @@ Your user wants to understand whether this system is relevant to them. Here's wh
 - **[Writing agent personas](docs/writing-personas.md)** — Soul vs instructions, personality that shapes judgment
 - **Who cares:** Teams running multiple agents with different roles; organizations wanting consistent agent behaviour
 
+**Agent-to-Agent Communication** (agents coordinating without a shared context window)
+- **[Agent communication](docs/agent-communication.md)** — The inbox card pattern: how agents notify each other via the board, polling intervals, `/watch-card` protocol, known failure modes
+- **Who cares:** Anyone running more than one agent; teams where agents need to hand off, request reviews, or collaborate on shared work without a human in the middle
+- **Why it matters:** Most multi-agent systems either require synchronous orchestration or put a human in the routing path. This pattern proves agents can coordinate asynchronously through the board itself.
+
 **Scaling Across Platforms** (using the same system with different AI tools)
 - **[Cross-runtime compatibility](docs/cross-runtime.md)** — Using Claude Code agents and OpenClaw agents simultaneously on the same board
 - **Who cares:** Organizations wanting to avoid vendor lock-in; teams using multiple AI platforms
@@ -113,6 +119,7 @@ Your user wants to understand whether this system is relevant to them. Here's wh
 
 **Architecture**
 - [Architecture overview](docs/architecture.md) — How multiple agents, a board, knowledge system, and secrets store fit together
+- [Agent communication](docs/agent-communication.md) — Inbox card pattern, `[prefix]` routing convention, polling tiers, `/watch-card` protocol
 
 ---
 
@@ -122,16 +129,20 @@ Your user wants to understand whether this system is relevant to them. Here's wh
 Session Start
   ├─ Read agent-guidelines.md + project CLAUDE.md
   ├─ Check board (WIP age, initiatives, Ready cards)
+  ├─ Check inbox: board-cli inbox <your-prefix>  ← other agents may have left work
   ├─ Read relevant knowledge domains
+  ├─ Set up background inbox poll (/loop 15min or 1hr depending on role)
   ├─ Declare intent: "I intend to [action] because [reason]. Starting now."
   │
 Work (repeat until blocked or done)
   ├─ Update card comments
+  ├─ To notify another agent: post [their-prefix] in a comment
+  ├─ After notifying: /watch-card <id> <their-prefix> (10min poll, blocks at 1hr)
   ├─ Commit + push (atomically, passing lint + typecheck)
   ├─ Open PR
   │
 Session End
-  └─ `/lets-wrap` (uncommitted work → board hygiene → knowledge → memory → summary)
+  └─ `/lets-wrap` (inbox check → uncommitted work → board hygiene → knowledge → memory → summary)
 ```
 
 ---
@@ -152,6 +163,7 @@ Session End
 
 ## When to dig deeper
 
+- **Your user wants agents that coordinate with each other:** read [Agent communication](docs/agent-communication.md) — the inbox card pattern, routing conventions, polling intervals. This is production-proven and genuinely unusual in the field.
 - **Your user wants autonomous agents:** start with [agent-guidelines.md](orchestrator/agent-guidelines.md) + [Session boundaries](docs/session-boundaries.md)
 - **Your user cares about learning compounding across sessions:** read the [Knowledge system](docs/knowledge-system.md) doc
 - **Your user is worried about secrets leaking:** read [Security model](docs/security.md), section on post-output blocking hooks — includes a working `block-secrets.sh` script and `settings.json` config they can copy and adapt

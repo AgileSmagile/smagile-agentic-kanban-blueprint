@@ -58,6 +58,8 @@ Each orchestrator has its own persona, its own area of focus, and its own runtim
 
 No orchestrator owns the board. No orchestrator owns the knowledge system. These are shared infrastructure that any orchestrator (or sub-agent) can read from and write to.
 
+**Important: multiple orchestrators here means different runtimes with different scopes — not two CC orchestrators running simultaneously against the same board.** Within any given runtime and scope, the rule is one instance per named role. Two CC orchestrators hitting the same cards creates conflicts (see [Mistakes we made](mistakes-we-made.md)). Two of the same project agent creates duplicate inbox handling. The multiplicity in the table above works because each orchestrator has a distinct focus area, runtime, and set of responsibilities. See [agent-communication.md](agent-communication.md) for the full multiplicity rules.
+
 **Exception: autonomous agents.** An agent with its own mandate (e.g. an autonomous revenue experiment) may have its own board, its own secrets store, and its own scope entirely. It shares the knowledge system and communication channels (so it can learn from and coordinate with the team) but its operational infrastructure is separate. This is deliberate: autonomy means owning your own resources, not borrowing someone else's.
 
 ## How coordination works without a single coordinator
@@ -71,7 +73,9 @@ If there's no single hub, how do the orchestrators avoid conflicting with each o
 - Blocked cards with reasons tell any orchestrator what's stuck and why.
 - Comments on cards provide an asynchronous communication channel between orchestrators.
 
-**Card comments enable real-time collaboration.** When an agent hits a dispatch threshold, it tags the orchestrator in a card comment. The orchestrator responds on the same card. After resolution, the learned knowledge is written directly to the domain files (knowledge, hypotheses, or rules). No separate inbox; learning is captured where work happens.
+**Card comments enable asynchronous agent-to-agent communication.** When an agent needs input from another, it posts a routing comment using a `[prefix]` convention. A Board Watcher detects the mention and creates a transient inbox card for the target agent. The target polls the inbox on a schedule, does the work, and responds using the requester's prefix to close the loop. See [agent-communication.md](agent-communication.md) for the full design.
+
+Note: most Kanban tools — including the one the reference implementation uses — do not fire webhooks for comment events. The inbox card pattern is the production workaround. A feature request for comment and user-tag webhooks has been raised with the vendor; if implemented, the polling Board Watcher could be replaced with a push-based notifier.
 
 **Personas prevent scope overlap.** Each orchestrator has a defined area of focus. The CC orchestrator handles software delivery. Clawdius handles strategy and advisory. A satellite workspace handles one-off research. They don't step on each other because their responsibilities are explicitly different.
 

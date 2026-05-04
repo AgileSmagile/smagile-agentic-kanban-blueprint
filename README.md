@@ -97,7 +97,37 @@ This matters because the alternative is worse than it looks. An agent that pushe
 
 The same logic applies to learning. Each completed task leaves behind a structured record -- what was hard, what to watch out for, which patterns hold for this codebase -- that the next agent working on something similar can read before starting. The board handles coordination across sessions; this handles accumulation of task-level knowledge that isn't general enough to go in the shared knowledge system but is too valuable to discard.
 
-### 7. Security is architectural, not instructional
+### 7. Agents can talk to each other — without a shared context window
+
+This is the part most multi-agent systems get wrong, or skip entirely.
+
+The obvious approach — passing messages via shared files or direct calls — works for simple cases but breaks at scale: it couples agents to each other's availability, creates race conditions, and usually requires one agent to be "in charge" of routing. Most production systems work around this by putting a human in the middle: Agent A finishes, the human looks at the output, tells Agent B what to do next.
+
+This blueprint proves a different model. Agents coordinate through the Kanban board itself.
+
+When Agent A needs Agent B's input, it posts a comment on the relevant card using a simple `[prefix]` convention. A lightweight Board Watcher process (running continuously, separately from any agent session) detects the mention and creates a transient **inbox card** in a dedicated inbox column. Agent B polls that column on a schedule. When it sees a card addressed to it, it does the work, posts a response using Agent A's prefix to route the reply back, and closes the inbox card.
+
+Neither agent needs to know the other is running. Neither needs to be available in real time. The board handles the routing.
+
+```
+Agent A posts [quality-guardian] on card #42
+  → Board Watcher detects it (within 90s)
+  → Creates inbox card: "[quality-guardian] #42 — ..."
+  → Quality Guardian sees it on next poll (≤15min)
+  → Quality Guardian responds with [lead-agent] on card #42
+  → Board Watcher creates return inbox card for Lead Agent
+  → Lead Agent closes the loop
+```
+
+**This is genuinely rare in production agentic systems.** Most multi-agent implementations rely on synchronous orchestration (bottleneck), shared markdown files (fragile), or comment-event webhooks that many board tools don't actually support (see [Mistakes we made](docs/mistakes-we-made.md)). The inbox card pattern survives all three failure modes because it uses the board's own data model as the messaging layer — no external infrastructure, no webhook dependencies, no real-time availability required.
+
+The constraint is latency: this is async coordination, not real-time chat. Maximum wait times are 15-25 minutes for coordination-hub agents, up to 2 hours for project-delivery agents in dialogue. For planned delivery work — which is what Kanban is for — this is acceptable.
+
+One prerequisite worth stating explicitly: **each named role must have exactly one active instance at a time.** One orchestrator, one quality guardian, one project agent per domain. The inbox routing assumes one reader per prefix — two simultaneous Mosaic agents would both pick up the same inbox card. Sandbox agents (ephemeral, no prefix, no persistent loop) are the exception: you can have as many as you need.
+
+Full design, polling intervals, implementation notes, and known failure modes: [docs/agent-communication.md](docs/agent-communication.md).
+
+### 8. Security is architectural, not instructional
 
 Telling an AI agent "don't leak secrets" in its instructions is the weakest form of protection. The real security comes from network isolation (running agents on a separate network segment), encrypted secrets management, scope boundaries (agents can only access their own project), and mechanical enforcement via hooks that block secret exposure before it reaches the terminal. The security doc includes a working `block-secrets.sh` script and `settings.json` config you can lift and adapt. See [docs/security.md](docs/security.md) for the full model.
 
