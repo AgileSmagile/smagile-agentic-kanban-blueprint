@@ -1,5 +1,37 @@
 # Release Notes
 
+## v1.5.0 — Push-based agent communication via Businessmap business rules
+
+**Release date:** 2026-05-05
+
+### What changed
+
+**1. Agent communication: polling replaced with push** *(breaking improvement)*
+- `docs/agent-communication.md` rewritten to document push-based delivery as the primary pattern
+- Businessmap confirmed (support ticket, May 2026) that their business rules engine supports comment-event triggers
+- New pipeline: comment posted → business rule fires → Cloudflare Worker proxy → n8n handler → inbox card created within seconds
+- Polling Board Watcher deactivated
+- `docs/agent-communication-workaround.md` added: the polling approach, clearly framed as a fallback for teams without business rules access or on different tools
+- `docs/mistakes-we-made.md` Mistake #9 updated: feature request resolved; vendor delivered
+- `docs/architecture.md`, `README.md`, `AGENT.md`, `orchestrator/CLAUDE.md` updated to remove Board Watcher references
+
+### Why this matters
+
+- **Latency drops from minutes to seconds.**  The polling Board Watcher had a minimum 90-second detection cycle; agent inbox polls added 15-60 minutes on top.  A Three Amigos conversation that previously took hours now completes in minutes.
+- **API load eliminated.**  The Board Watcher was hitting the Businessmap API every 90 seconds regardless of activity.  Push means requests only occur when comments are actually posted.
+- **The pattern is now the architecture, not a workaround.**  The inbox card routing convention, `[prefix]` tokens, and `/watch-card` protocol are unchanged.  Only the delivery mechanism improved.
+
+### Action for teams using this blueprint
+
+- **Businessmap users with business rules access:** configure the business rule per board (trigger: "Card is updated", predicate: "Comment (new)", action: invoke web service).  Deploy the Cloudflare Worker proxy and n8n handler.  Deactivate your polling Board Watcher.
+- **Everyone else:** the polling approach continues to work and is now documented in `docs/agent-communication-workaround.md`.
+
+### Commits
+
+- `[pending]` — Replace polling Board Watcher with push via Businessmap business rules
+
+---
+
 ## v1.4.0 — Agent-to-agent communication and quality engineering
 
 **Release date:** 2026-05-04
@@ -11,7 +43,6 @@
 - Covers: agent multiplicity rules (one named agent per prefix, unlimited sandbox agents), the `[prefix]` routing convention, Board Watcher detection logic, three-tier polling intervals, `/watch-card` protocol for active dialogue, initiative wakeup via title prefix, shell escaping gotchas, practical implementation examples, and five known failure modes
 - README updated with new section 7: "Agents can talk to each other" with full flow diagram
 - AGENT.md updated: inbox check on startup, agent comms in research guide, flow diagram expanded with inbox poll and `/watch-card`
-- `docs/mistakes-we-made.md` adds Mistake #9: assuming the board tool fires comment webhooks (it doesn't for comments; two-day debugging story and the fix-forward to polling)
 - `docs/architecture.md` updated with multiplicity clarification
 
 **2. Quality engineering knowledge domain** *(new)*
@@ -30,7 +61,7 @@
 
 ### Why this matters
 
-- **Agents can coordinate without a human in the middle.**  The inbox card pattern is a polling-based workaround for a missing feature: the board tool does not yet fire webhooks on comment or user-tag events.  The latency is suboptimal and a feature request is raised with the vendor.  If comment webhooks land, the detection trigger changes but the pattern stays.  Even so, this is an exciting step: it reduces reliance on the human as a message router and enables something closer to teamwork than a collection of individuals operating in the same system.
+- **Agents can coordinate without a human in the middle.**  The inbox card pattern reduces reliance on the human as a message router and enables something closer to teamwork than a collection of individuals operating in the same system.  The initial implementation used a polling Board Watcher as a workaround for missing comment webhook support; see v1.5.0 for the push-based upgrade.
 - **Quality enforcement is mechanical, not instructional.**  Hooks that survive clone, coverage thresholds that ratchet, CI that cannot be bypassed.  Policy tells agents what to do; gates stop them when they don't.
 - **The knowledge system has a second domain.**  Quality engineering joins ProKanban as a domain with rules, hypotheses, and observations that compound across agents and sessions.
 

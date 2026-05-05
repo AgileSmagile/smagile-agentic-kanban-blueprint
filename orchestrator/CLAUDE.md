@@ -79,7 +79,7 @@ cd ~/Projects/sonnet-agent && bin/bmap inbox AKB
 ```
 Then `/loop 15m` for each. Stagger by a few minutes. When actively waiting on a tagged agent, use `/watch-card` instead (10min poll, auto-blocks at 1hr).
 
-**To notify another agent:** post a comment on the relevant IP card containing `[prefix]` (e.g. `[Mosaic]`, `[L-E]`, `[Scout]`) or `@Agent-TestSpecialist`. The Board Watcher creates an inbox card for them automatically.
+**To notify another agent:** post a comment on the relevant IP card containing `[prefix]` (e.g. `[Mosaic]`, `[L-E]`, `[Scout]`) or `@Agent-TestSpecialist`. The Businessmap business rule fires on the comment and creates an inbox card for them automatically within seconds.
 
 **After notifying:** use `/watch-card <card_id> <prefix_you_notified>` to set a 1-hour safety check. No response in 1hr = card auto-blocked with a comment for James.
 

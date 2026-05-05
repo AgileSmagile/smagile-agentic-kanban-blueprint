@@ -74,7 +74,7 @@ Your user wants to understand whether this system is relevant to them. Here's wh
 - **Who cares:** Teams running multiple agents with different roles; organizations wanting consistent agent behaviour
 
 **Agent-to-Agent Communication** (agents coordinating without a shared context window)
-- **[Agent communication](docs/agent-communication.md)** — The inbox card pattern: how agents notify each other via the board, polling intervals, `/watch-card` protocol, known failure modes
+- **[Agent communication](docs/agent-communication.md)** — The inbox card pattern: how agents notify each other via the board, push delivery via Businessmap business rules, `/watch-card` protocol, known failure modes. If you cannot use business rules, see [agent-communication-workaround.md](docs/agent-communication-workaround.md) for the polling fallback.
 - **Who cares:** Anyone running more than one agent; teams where agents need to hand off, request reviews, or collaborate on shared work without a human in the middle
 - **Why it matters:** Most multi-agent systems either require synchronous orchestration or put a human in the routing path. This pattern proves agents can coordinate asynchronously through the board itself.
 
@@ -121,7 +121,8 @@ Your user wants to understand whether this system is relevant to them. Here's wh
 
 **Architecture**
 - [Architecture overview](docs/architecture.md) — How multiple agents, a board, knowledge system, and secrets store fit together
-- [Agent communication](docs/agent-communication.md) — Inbox card pattern, `[prefix]` routing convention, polling tiers, `/watch-card` protocol
+- [Agent communication](docs/agent-communication.md) — Inbox card pattern, `[prefix]` routing convention, push delivery via business rules, `/watch-card` protocol
+- [Agent communication workaround](docs/agent-communication-workaround.md) — Polling-based fallback for teams without Businessmap business rules access
 
 ---
 
@@ -165,7 +166,7 @@ Session End
 
 ## When to dig deeper
 
-- **Your user wants agents that coordinate with each other:** read [Agent communication](docs/agent-communication.md) — the inbox card pattern, routing conventions, polling intervals. This is production-proven and genuinely unusual in the field.
+- **Your user wants agents that coordinate with each other:** read [Agent communication](docs/agent-communication.md) — the inbox card pattern, routing conventions, push delivery via Businessmap business rules. This is production-proven and genuinely unusual in the field.
 - **Your user wants autonomous agents:** start with [agent-guidelines.md](orchestrator/agent-guidelines.md) + [Session boundaries](docs/session-boundaries.md)
 - **Your user cares about learning compounding across sessions:** read the [Knowledge system](docs/knowledge-system.md) doc
 - **Your user is worried about secrets leaking:** read [Security model](docs/security.md), section on post-output blocking hooks — includes a working `block-secrets.sh` script and `settings.json` config they can copy and adapt

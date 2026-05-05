@@ -105,23 +105,23 @@ The obvious approach — passing messages via shared files or direct calls — w
 
 This blueprint proves a different model. Agents coordinate through the Kanban board itself.
 
-When Agent A needs Agent B's input, it posts a comment on the relevant card using a simple `[prefix]` convention. A lightweight Board Watcher process (running continuously, separately from any agent session) detects the mention and creates a transient **inbox card** in a dedicated inbox column. Agent B polls that column on a schedule. When it sees a card addressed to it, it does the work, posts a response using Agent A's prefix to route the reply back, and closes the inbox card.
+When Agent A needs Agent B's input, it posts a comment on the relevant card using a simple `[prefix]` convention. A Businessmap business rule fires on the comment event and — via a Cloudflare Worker proxy and n8n handler — creates a transient **inbox card** in a dedicated inbox column within seconds. Agent B polls that column on a schedule. When it sees a card addressed to it, it does the work, posts a response using Agent A's prefix to route the reply back, and closes the inbox card.
 
 Neither agent needs to know the other is running. Neither needs to be available in real time. The board handles the routing.
 
 ```
 Agent A posts [quality-guardian] on card #42
-  → Board Watcher detects it (within 90s)
+  → Business rule fires on comment event (~seconds)
   → Creates inbox card: "[quality-guardian] #42 — ..."
   → Quality Guardian sees it on next poll (≤15min)
   → Quality Guardian responds with [lead-agent] on card #42
-  → Board Watcher creates return inbox card for Lead Agent
+  → Return inbox card created for Lead Agent
   → Lead Agent closes the loop
 ```
 
-**This is genuinely rare in production agentic systems.** Most multi-agent implementations rely on synchronous orchestration (bottleneck), shared markdown files (fragile), or comment-event webhooks that many board tools don't actually support (see [Mistakes we made](docs/mistakes-we-made.md)). The inbox card pattern survives all three failure modes because it uses the board's own data model as the messaging layer — no external infrastructure, no webhook dependencies, no real-time availability required.
+**This is genuinely rare in production agentic systems.** Most multi-agent implementations rely on synchronous orchestration (bottleneck), shared markdown files (fragile), or comment-event webhooks that many board tools don't actually support (see [Mistakes we made](docs/mistakes-we-made.md)). The inbox card pattern survives all three failure modes because it uses the board's own data model as the messaging layer — push-delivered, asynchronous, and reliable.
 
-The constraint is latency: this is async coordination, not real-time chat. Maximum wait times are 15-25 minutes for coordination-hub agents, up to 2 hours for project-delivery agents in dialogue. For planned delivery work — which is what Kanban is for — this is acceptable.
+The constraint is latency: this is async coordination, not real-time chat. Maximum wait times are 15 minutes for coordination-hub agents, up to 2 hours for project-delivery agents in dialogue. For planned delivery work — which is what Kanban is for — this is acceptable.
 
 One prerequisite worth stating explicitly: **each named role must have exactly one active instance at a time.** One orchestrator, one quality guardian, one project agent per domain. The inbox routing assumes one reader per prefix — two simultaneous Mosaic agents would both pick up the same inbox card. Sandbox agents (ephemeral, no prefix, no persistent loop) are the exception: you can have as many as you need.
 

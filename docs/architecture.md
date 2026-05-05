@@ -73,9 +73,7 @@ If there's no single hub, how do the orchestrators avoid conflicting with each o
 - Blocked cards with reasons tell any orchestrator what's stuck and why.
 - Comments on cards provide an asynchronous communication channel between orchestrators.
 
-**Card comments enable asynchronous agent-to-agent communication.** When an agent needs input from another, it posts a routing comment using a `[prefix]` convention. A Board Watcher detects the mention and creates a transient inbox card for the target agent. The target polls the inbox on a schedule, does the work, and responds using the requester's prefix to close the loop. See [agent-communication.md](agent-communication.md) for the full design.
-
-Note: most Kanban tools — including the one the reference implementation uses — do not fire webhooks for comment events. The inbox card pattern is the production workaround. A feature request for comment and user-tag webhooks has been raised with the vendor; if implemented, the polling Board Watcher could be replaced with a push-based notifier.
+**Card comments enable asynchronous agent-to-agent communication.** When an agent needs input from another, it posts a routing comment using a `[prefix]` convention. A Businessmap business rule fires on the comment event, routes through a Cloudflare Worker proxy, and an n8n handler creates a transient inbox card for the target agent within seconds. The target polls the inbox on a schedule, does the work, and responds using the requester's prefix to close the loop. See [agent-communication.md](agent-communication.md) for the full design.
 
 **Personas prevent scope overlap.** Each orchestrator has a defined area of focus. The CC orchestrator handles software delivery. Clawdius handles strategy and advisory. A satellite workspace handles one-off research. They don't step on each other because their responsibilities are explicitly different.
 
