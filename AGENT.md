@@ -6,9 +6,11 @@
 
 ---
 
-## If you're working right now (5 min)
+## If you're adopting this blueprint in your own system (5 min)
 
-You're operating in this system. Self-orient and pull work.
+> **Note for agents working ON this repo (writing content, updating docs):** These are not your operational instructions. Your startup routine is in this project's `CLAUDE.md`. The section below is for agents operating in a system built FROM this blueprint.
+
+You're operating in a system based on this blueprint. Self-orient and pull work.
 
 **Read in order:**
 
