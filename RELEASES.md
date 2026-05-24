@@ -1,5 +1,52 @@
 # Release Notes
 
+## v1.9.0 — Skills system, regression gate, improved session wrap, and model drift lesson
+
+**Release date:** 2026-05-24
+
+### What changed
+
+**1. Skills system published** (`skills/`, `docs/skills.md`)
+- Six skill files now published as reference implementations: `lets-start`, `lets-wrap`, `ntest`, `xtest`, `regression-gate`, `watch-card`
+- New `docs/skills.md` inventory document explaining the skill system: what skills are, how they work, and the human-invokable vs agent-only distinction
+- Skills are structured prompts encoding repeatable processes; they standardise approach without removing agent judgement
+- The distinction between human-invokable skills (lets-start, lets-wrap, ntest, xtest) and agent-only skills (regression-gate, watch-card) is now explicit: human-invokable skills can ask clarifying questions; agent-only skills must run to completion without interaction
+
+**2. Regression gate skill injection pattern** (`docs/quality-gates.md`, `skills/regression-gate/SKILL.md`)
+- New section in quality-gates.md documenting the regression gate: a hook that fires after tests pass, detects modified API routes in the diff, and injects a structured skill into the agent's context
+- The skill walks agents through six security vectors per modified route: cross-user/cross-tenant isolation, resource ownership chains, role enforcement, auth enforcement, input validation on security boundaries, token-gated routes
+- Skip-with-reason requirement: agents must document why a vector does not apply, not silently skip it — creates an audit trail and catches lazy skipping
+- Updated defence-in-depth table now shows five layers: policy, awareness (review trigger hook), regression (regression gate skill), enforcement (sentinels), assurance (Quality Guardian review)
+- Positioned between awareness and enforcement deliberately: harder to ignore than a reminder, softer than a pre-commit block
+
+**3. Session wrap improvements** (`docs/session-boundaries.md`)
+- New step 2a: inter-agent session handoff — project agents send a structured summary to the coordinator after sessions where significant decisions occurred; prevents coordinators and POs from needing to reconstruct session history
+- Memory update step expanded into four explicit categories: reference data discovered, feedback patterns, decisions and project state, user preferences — agents must report per category, not a single "updated/not updated"
+- PO feedback expanded with input quality as a required sub-category: clarity of prompts, embedded multiple asks, vagueness in acceptance criteria, guessed intent
+- New step 8a: "what else?" self-challenge — agent explicitly simulates the PO asking "what else?" before closing, catching incomplete captures before the session ends rather than requiring a follow-up
+- Updated reference card at end of document reflects all additions
+
+**4. Model drift lesson** (`docs/mistakes-we-made.md`, `docs/getting-started.md`)
+- New mistakes entry: "Agents running on the wrong model without knowing it" — covers both failure directions (under-powered specialist, over-powered routine agent), explains why confident-but-incomplete output is harder to catch than obviously wrong output
+- Getting started Step 7 (persona setup) now includes explicit model configuration: every project directory should have a `.claude/settings.json` with a `model` field; without it, the agent inherits whatever the previous session used
+- Working guide for model tier selection: Opus for work where being wrong is expensive and invisible, Sonnet for delivery default, Haiku for mechanical tasks only
+
+### Why this matters
+
+- **Skills cross the gap from pattern to practice.** Previous releases documented quality patterns (test depth model, sentinel tests, review triggers). This release publishes the actual skill files — the step-by-step methodologies agents invoke. The pattern is now a practice.
+- **The regression gate addresses the hardest quality problem.** Sentinel tests catch missing auth. The regression gate addresses the subtler failure: tests exist but don't exercise the right behaviour. Six vectors, required coverage documentation, skip-with-reason — this is the structure that makes "write regression tests" mean something consistent.
+- **Session wrap is where continuity lives or dies.** The letting of inter-agent handoffs, categorical memory updates, and the "what else?" challenge are all responses to the same failure: things that mattered during a session not making it across the session boundary. The wrap process now has more structure around the steps agents were most likely to do shallowly.
+- **Model drift is invisible until it isn't.** An agent running on the wrong model produces confident output. The failure does not announce itself. The lesson and the fix (two lines of JSON, per project, before the first session) are now part of the blueprint's standard onboarding path.
+
+### Action for teams using this blueprint
+
+- **Copy the skill files.** The six skill files in `skills/` are the starting point. Copy them to your project's skills directory and adapt the project-specific sections (column IDs, domain-specific vectors, your coordination channel).
+- **Deploy the regression gate hook.** The hook fires after tests pass and detects route file changes in the diff. It is the most targeted quality-left intervention in the blueprint; it only fires when relevant.
+- **Add `.claude/settings.json` to every project directory.** Set `model` explicitly. Opus for orchestrators and quality specialists; Sonnet for delivery; Haiku only for mechanical tasks. Do this before the next session, not after the first surprising result.
+- **Expand PO feedback in your wrap process.** Input quality is the category most teams skip. Run a session with the explicit sub-categories (prompt clarity, embedded asks, AC vagueness, guessed intent) and see what surfaces.
+
+---
+
 ## v1.8.0 — Cross-agent review triggers, mechanical sentinels, and context-aware hooks
 
 **Release date:** 2026-05-18

@@ -214,6 +214,56 @@ These sentinels are not tests for what the code does. They are tests for what th
 
 ---
 
+## The Regression Gate: Skill Injection After Tests Pass
+
+Sentinels catch what is missing. The review-trigger hook reminds agents to tag reviewers. But neither addresses the gap between "tests pass" and "tests are good enough." An agent can write sentinel tests that grep for auth middleware patterns, pass the gate, and ship code with authorisation bypasses that only a behavioural test would catch.
+
+The regression gate closes this gap with a **skill injection pattern**: a hook that fires after tests pass, detects modified API routes in the diff, and injects a structured skill that walks the agent through six security vectors.
+
+### How it works
+
+```
+Agent modifies API routes → runs tests → tests pass
+  → PostToolUse hook fires
+  → Hook checks: route files in diff? regression tests already added?
+  → If route files present and no regression tests: inject prompt
+  → Agent invokes regression-gate skill
+  → Skill walks through 6 vectors per route:
+      1. Cross-user/cross-tenant data isolation
+      2. Resource ownership chains
+      3. Role enforcement
+      4. Auth enforcement
+      5. Input validation on security boundaries
+      6. Token-gated routes
+  → Agent writes regression tests, documents coverage on card
+  → Hook sees regression tests in diff → does not fire again
+```
+
+### Why skill injection, not just a hook
+
+A hook can remind. A skill can guide. The regression gate skill doesn't just say "write regression tests"; it walks the agent through each vector with specific checks, specific test patterns, and explicit skip-with-reason requirements. This matters because:
+
+- **Agents don't know what they don't know.** Without the vectors, an agent writes the tests it thinks of, which are the obvious ones. The non-obvious vectors (ownership chains, token opacity, input validation on foreign keys) are exactly the ones that sentinel tests miss.
+- **The skill makes quality reproducible.** Every agent, every session, same vectors, same rigour. The quality of regression testing does not depend on the agent's experience or attention level.
+- **Skip-with-reason forces deliberate choices.** The skill requires agents to document why a vector does not apply, not just skip it silently. This creates an audit trail and catches lazy skipping.
+
+### Reference implementation
+
+- **Hook:** [`regression-gate-trigger.sh`](../hooks/regression-gate-trigger.sh) (PostToolUse, fires once per session)
+- **Skill:** [`skills/regression-gate/SKILL.md`](../skills/regression-gate/SKILL.md) (6 vectors, test patterns, documentation requirements)
+
+### Defence in depth (complete picture)
+
+| Layer | Mechanism | When | What it catches | Blocking? |
+|-------|-----------|------|-----------------|-----------|
+| Policy | Agent guidelines | Session start | Sets expectations | No |
+| Awareness | Review trigger hook | Every N tool calls | Reminds to tag reviewer | No |
+| Regression | Regression gate skill | After tests pass + route changes | Missing security regression tests | Soft (agent must invoke) |
+| Enforcement | Sentinel tests | Pre-commit | Missing auth, missing RLS, exposed secrets | Yes |
+| Assurance | Quality Guardian review | Before merge (tagged) | Architectural and logic gaps | Yes (blocking authority) |
+
+The regression gate sits between awareness and enforcement. It is harder to ignore than a reminder but softer than a pre-commit block. This is deliberate: it gives the agent the structured guidance to do the right thing, rather than just blocking the wrong thing.
+
 ## Mechanical Enforcement
 
 Policy documentation (CLAUDE.md, agent guidelines) tells agents what to do. Mechanical gates stop them when they don't. Both are needed; when they conflict, the mechanic wins.
@@ -233,6 +283,7 @@ See `knowledge/quality-engineering/rules.md` for the full rule set. See `knowled
 
 - [test-depth-model.md](test-depth-model.md): Five-level test depth model and agentic-specific testing practices
 - [review-trigger-hook.md](review-trigger-hook.md): Context-aware hook that reminds agents to tag reviewers during development
+- [skills/regression-gate/](../skills/regression-gate/): Skill that walks agents through 6 security vectors for modified API routes
 - [personas/quality-guardian/](../personas/quality-guardian/): Full role definition (soul & instructions)
 - [architecture.md](architecture.md): How agents fit into the overall system
 - [human-in-the-system.md](human-in-the-system.md): When humans intervene and why

@@ -233,6 +233,16 @@ If you only have one agent, you don't need separate persona files; CLAUDE.md is 
 
 Copy from `personas/` and adapt the role, responsibilities, and constraints.
 
+**Set the model explicitly.**  Every persona should have a `.claude/settings.json` in its working directory with a `model` field:
+
+```json
+{
+  "model": "claude-sonnet-4-6"
+}
+```
+
+Without this, the agent inherits whatever model the previous session left behind.  That is not configuration; it is an accident.  A working guide: reasoning-heavy roles (orchestrator, quality guardian, security specialist) warrant Opus.  Most delivery and implementation work runs well on Sonnet.  Reserve Haiku for mechanical tasks where speed matters and depth does not.  See [mistakes-we-made.md](mistakes-we-made.md) for the specific failure pattern this prevents.
+
 **File naming matters for auto-loading.** Different AI platforms auto-load different files:
 - **Claude Code** auto-loads `CLAUDE.md` (uppercase) from the project root
 - **OpenClaw** auto-loads uppercase files like `SOUL.md` and `AGENTS.md` from the agent workspace; lowercase `soul.md` and `instructions.md` are not auto-loaded and must be referenced explicitly in config

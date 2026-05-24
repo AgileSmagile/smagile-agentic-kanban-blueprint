@@ -249,9 +249,27 @@ The PO types a command (in Claude Code, this is a custom skill invoked via slash
 
 2. **Board hygiene.** Do card positions reflect reality? Are comments needed for context that would otherwise be lost? Cards moving to Done need review guidance so the PO knows what to look at.
 
+2a. **Inter-agent session handoff (project agents only).** After each session where anything significant occurred, project agents send a structured summary to the coordinator. This is a live handoff, not a board card that sits in a backlog. It prevents the coordinator from needing to ask "what happened?" — and prevents the PO from needing to ask a second time.
+
+The summary covers: key decisions made, key actions taken, risks or blockers surfaced, items that need coordinator attention. Five to ten lines. Send it via whatever channel the coordination system uses for agent-to-agent messaging (card comment with coordinator routing prefix, inbox card, or direct mention — whatever the system supports). The coordinator reads it on the next poll without prompting.
+
+If nothing significant happened (routine progress, no decisions, no risks): say so and skip. Do not send noise.
+
+This step is different from raising a board card (which goes to backlog) and different from a card comment (which is card-specific). It is the session-level signal the coordinator needs to maintain estate-wide awareness.
+
 3. **Knowledge system.** This is the step agents are most tempted to skip. It requires thinking about what was learned, not just what was done. The prompt: "If a fresh agent started this card tomorrow with no context from you, what would they get wrong?" That is what belongs in the domain knowledge files.
 
 4. **Memory update.** Memory is the handoff. There is no separate handoff step. If memory is updated properly, the next session self-orients from memory, the board, and the code. One practice instead of three. Project-specific decisions go in project-level memory. Cross-project insights and user preferences go in global memory.
+
+Go through each category explicitly — do not scan once and stop at the obvious ones:
+
+- **Reference data discovered.** Things you had to find out rather than knew from memory, and will need again: config values, column IDs, API endpoints, tool behaviour, board structures. The test: "What did I discover this session that I would have benefited from knowing at the start?" If you had to discover it, the next agent will too — unless you write it down.
+
+- **Feedback patterns.** Corrections the PO made to your approach, framing, or output. Non-obvious approaches that worked and should be repeated. The test: "What would I tell the next agent starting a session like this one?"
+
+- **Decisions and project state.** Architecture calls, scope changes, tech choices, deferred items. The test: "What changed about the project this session that is not derivable from git history?"
+
+- **User preferences and working patterns.** Only capture if something new was revealed. Do not pad with preferences already in memory.
 
 5. **Environment parity check (if applicable).** If your project has pre-prod and production deployments with different automation rules, check for divergence. If pre-prod auto-deploys on every push to main but production requires manual dispatch, list commits waiting for promotion. Flag if non-breaking changes are aging in a vetting column. This prevents pre-prod and prod from silently drifting out of sync.
 
@@ -273,6 +291,16 @@ The PO types a command (in Claude Code, this is a custom skill invoked via slash
    **What is working well?** Did the PO make a decision that unblocked work? Did the system design hold up? Did the PO stay out of the way when autonomy was the right call? Did card context set agents up for success? Reinforcement is signal.
 
    **What needs to improve?**
+
+   - **Input quality.** This is the most commonly skipped category — and the most useful one to get right. Evaluate the PO's prompts, card descriptions, and in-session instructions as raw inputs to the system. Go through each question explicitly:
+     - Was a message too long, burying the actual ask? Note where the ask appeared and how far in.
+     - Did a prompt contain multiple embedded asks without clear priority? State which you treated as primary and whether that was the right call.
+     - Was acceptance criteria vague where precision was needed? ("should" vs "must", missing edge cases, ambiguous done criteria)
+     - Did you have to guess at intent at any point? What was missing that would have resolved it?
+     - Was context provided that turned out to be irrelevant, or context omitted that would have changed your approach?
+
+     If the session involved any instruction or prompt from the PO — and it always does — there is signal here. Find it. Examples of what useful input quality feedback sounds like: "The opening message had three asks; I prioritised the first, which may not have been your intent." / "Card AC said 'handle errors gracefully' — I made a judgement call that may not match your expectation." / "Prompt was clear and scoped well."
+
    - **Process gaps the PO owns.** Did housekeeping get deferred? Did knowledge go stale? Did a transition happen without a migration plan?
    - **Bottlenecks caused by the PO.** Were cards blocked waiting for a PO decision? Did work age unnecessarily in Done or review?
    - **Pattern hypocrisy.** Is the PO tolerating in their own system what they would diagnose as dysfunction in a client's?
@@ -280,13 +308,19 @@ The PO types a command (in Claude Code, this is a custom skill invoked via slash
 
    Tone: direct, no softening, no apology. State what happened, state the consequence, state what would be better. The PO has opted into this feedback loop. It is continuous improvement data applied to the whole system, not just the agents.
 
-   If there is genuinely nothing to say: "No PO feedback" and move on. Do not manufacture feedback.
+   Do not write a single "No PO feedback" and move on. Report a result per category. "Input quality: clear throughout. Process gaps: none observed." is the minimum acceptable output. A blanket skip is not.
 
 8. **Session summary.** Output to chat:
    - **Done this session**: what shipped, moved, or meaningfully progressed
    - **What could have gone better**: honest self-critique, not performative humility. Where did the agent waste time? What would it do differently? This is continuous improvement data.
 
-9. **Confirmation.** List all nine steps. Each either acted on or explicitly skipped with a reason. "No updates needed" is fine. "Forgot" is not.
+8a. **"What else?" self-challenge.** Before writing the daily log, the agent explicitly simulates the PO asking "what else?" If the answer is non-empty — a memory not written, a risk glossed over, a reference discovered but not captured, a decision not quite surfaced — act on it now.
+
+This step exists because the two-stage pattern (wrap → "what else?") is a system failure, not a PO failure. If the PO has to ask, something in the preceding steps was incomplete. The purpose of this step is to make that a one-stage pattern: the agent surfaces it; the PO does not have to ask.
+
+If the answer is genuinely nothing: say so and move on. If it is anything: act on it first, then write the daily log.
+
+9. **Confirmation.** List all steps. Each either acted on or explicitly skipped with a reason. "No updates needed" is fine. "Forgot" is not. The memory step should show a result per category (reference data, feedback patterns, decisions/state), not a single "updated/not updated".
 
 ### What this replaces
 
@@ -302,13 +336,15 @@ The skill is invoked by typing `/lets-wrap` in the Claude Code prompt. The skill
 
 1. **Git hygiene.** Uncommitted work, unmerged branches, open PRs. Commit what is ready; flag orphans.
 2. **Board hygiene.** Card positions reflect reality? Comments needed? Cards moving to Done need review guidance.
+2a. **Inter-agent session handoff (project agents only).** Send a structured summary to the coordinator: decisions made, actions taken, risks surfaced, items needing coordinator attention. Five to ten lines via the coordination channel. Skip if nothing significant occurred.
 3. **Knowledge system.** Did the session produce observations a fresh agent on a different card would benefit from? Write to the relevant domain files if yes.
-4. **Memory update.** Memory IS the handoff. Update if anything about user preferences, project decisions, or cross-project insights changed.
+4. **Memory update.** Go through each category explicitly: (a) reference data discovered — config values, column IDs, endpoints, tool behaviour; (b) feedback patterns — corrections received, approaches validated; (c) decisions and project state — architecture calls, scope changes, deferred items; (d) user preferences — only if something new was revealed. Report a result per category, not a single updated/not updated.
 5. **Environment parity check (if applicable).** Pre-prod/prod divergence. Flag non-breaking changes aging in vetting.
 6. **Daily log and weekly digest.** Write daily log entry to `vault/logs/daily/YYYY-MM-DD.md` (progress, lessons, feedback). If 7+ days since last digest, also write digest to `vault/logs/digests/YYYY-Www.md`.
-7. **PO feedback.** Did the PO's actions or inactions contribute to system underperformance? Process gaps, bottlenecks, pattern hypocrisy, fragmentation. Direct, unapologetic, data not criticism.
+7. **PO feedback.** Report per category — do not skip with a blanket "no feedback". Categories: (a) input quality — were prompts clear, single-ask, appropriately scoped? Were card descriptions precise enough? Did you have to guess intent? (b) process gaps the PO owns; (c) bottlenecks caused by the PO; (d) pattern hypocrisy; (e) fragmentation. Direct, unapologetic, data not criticism.
 8. **Session summary.** Done this session; what could have gone better.
-9. **Confirmation.** All nine steps listed; each acted on or explicitly skipped with a reason.
+8a. **"What else?" self-challenge.** Simulate the PO asking "what else?" before writing the daily log. If the answer is non-empty, something above was incomplete — find it and act on it. If genuinely nothing, move on.
+9. **Confirmation.** All steps listed; each acted on or explicitly skipped with a reason.
 
 The `/lets-wrap` skill is the forcing function that ensures this happens consistently. Without it, agents skip the knowledge system (most common) and memory updates (second most common). With it, reflection becomes part of the session boundary, not an optional extra.
 
