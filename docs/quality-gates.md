@@ -259,10 +259,66 @@ A hook can remind. A skill can guide. The regression gate skill doesn't just say
 | Policy | Agent guidelines | Session start | Sets expectations | No |
 | Awareness | Review trigger hook | Every N tool calls | Reminds to tag reviewer | No |
 | Regression | Regression gate skill | After tests pass + route changes | Missing security regression tests | Soft (agent must invoke) |
+| Integrity | Assertion lock | Pre-commit | Weakened, removed, or silently changed assertions | Yes |
 | Enforcement | Sentinel tests | Pre-commit | Missing auth, missing RLS, exposed secrets | Yes |
 | Assurance | Quality Guardian review | Before merge (tagged) | Architectural and logic gaps | Yes (blocking authority) |
 
 The regression gate sits between awareness and enforcement. It is harder to ignore than a reminder but softer than a pre-commit block. This is deliberate: it gives the agent the structured guidance to do the right thing, rather than just blocking the wrong thing.
+
+## Assertion Lock: Preventing Silent Test Weakening
+
+Agents sometimes "fix" failing tests by weakening the assertion rather than fixing the code. An `expect(res.status).toBe(403)` becomes `expect(res.status).toBe(200)`. The test passes. The security gap ships.
+
+The assertion lock is a pre-commit gate that makes this impossible without leaving visible evidence.
+
+### How it works
+
+1. **Generate:** Extract every `expect()` call from test files, hash each assertion signature, write to `.assertion-lock.json` (committed to the repo).
+2. **Verify (pre-commit):** Re-extract assertions from staged test files. Compare against lockfile. Block if assertions were weakened, removed, or count decreased.
+3. **Update (explicit):** When assertion changes are intentional, run `assertion-lock update <file>` to regenerate hashes. The lockfile diff is visible in the PR.
+
+### What triggers a block
+
+- Assertion value changed (e.g. 403 to 200)
+- Assertion weakened (`.toBe(403)` to `.toBeDefined()`)
+- Assertion count decreased in a file
+- Security-tagged file assertions modified (files matching `auth/`, `security/`, `*regression*`, `*sentinel*`, `*pentest*`, `*ntest*`, `*rls*`, `*csrf*`)
+
+### What doesn't trigger a block
+
+- New test files added
+- New assertions added to existing files
+- Lockfile not yet generated (first run)
+
+### The visibility principle
+
+Even if an agent runs `assertion-lock update` to acknowledge changes, the lockfile diff shows up in the PR. A PR where assertion hashes changed with no corresponding code fix is a mechanical red flag for any reviewer.
+
+### Setup
+
+```bash
+# Copy tools/assertion-lock.mjs into your project
+# Add to package.json scripts:
+#   "assertion-lock": "node tools/assertion-lock.mjs"
+# Add to .husky/pre-commit:
+#   npm run assertion-lock -- verify
+# Generate initial lockfile:
+#   npm run assertion-lock -- generate
+# Commit .assertion-lock.json to the repo
+```
+
+### Commands
+
+```bash
+assertion-lock generate                  # Build/rebuild .assertion-lock.json
+assertion-lock verify                    # Check staged files (pre-commit hook)
+assertion-lock update [file...]          # Acknowledge intentional changes
+assertion-lock diff                      # Show changes vs lockfile
+```
+
+### Security classification
+
+Files matching security patterns (`auth/`, `security/`, `*regression*`, etc.) are automatically classified as security-critical. Changes to assertions in these files produce blocking violations rather than warnings. This is configurable via the `SECURITY_PATTERNS` array in the tool.
 
 ## Mechanical Enforcement
 
@@ -287,3 +343,4 @@ See `knowledge/quality-engineering/rules.md` for the full rule set. See `knowled
 - [personas/quality-guardian/](../personas/quality-guardian/): Full role definition (soul & instructions)
 - [architecture.md](architecture.md): How agents fit into the overall system
 - [human-in-the-system.md](human-in-the-system.md): When humans intervene and why
+- [tools/assertion-lock.mjs](../tools/assertion-lock.mjs): Pre-commit gate preventing silent test weakening
