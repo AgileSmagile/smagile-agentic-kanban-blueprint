@@ -148,11 +148,28 @@ This takes 60 seconds and makes the next agent on a similar task measurably bett
 5. **Direct writes, semantic domains.** Learning is captured where agents read it, organised by topic and easy to query.
 6. **Card comments for in-progress discussion.** Observations and insights surface on the card first, then get written to domain files when the work completes.
 
+## Lifecycle Enforcement
+
+The promotion cycle looks clean on paper. In practice, without mechanical enforcement, hypotheses accumulate indefinitely at zero evidence and the digest becomes a growing guilt list that nobody acts on. We ran this system for 8 weeks before adding the following guards. Without them, capture worked but lifecycle did not.
+
+### Hypothesis WIP limit (max 5 per domain)
+
+Same principle as board WIP limits. You cannot create a new hypothesis without promoting or archiving an existing one. This forces completion over accumulation. Add the limit as a header in each `hypotheses.md` file with the current count.
+
+### Two-strike auto-archive
+
+If a hypothesis appears in the stale candidates section of two consecutive weekly digests with no new evidence, the third digest archives it mechanically. Not a recommendation — a rule. Change its status to `archived` and move it under an `## Archived` heading. The only way to prevent archival is to add evidence or convert the hypothesis into a concrete, time-bound experiment.
+
+### Explicit evidence check at session wrap
+
+The after-ritual asks vaguely "did you learn anything?" This is too easy to skip. Instead, pull the actual hypothesis list for the domain and ask specifically: "Did this session produce evidence for or against any of these?" The hypothesis text is right there — no memory required, no aspirational "track over next 5 sessions." This is the single most impactful change: it turns hypotheses from write-once artifacts into living questions that get revisited every session.
+
 ## Common Failure Modes
 
 - **Agents skip the before-ritual.** Fix: make it explicit in the startup instructions, not optional.
-- **Rules go stale.** Hypothesis H5 in the prokanban domain addresses this. Consider adding `last_updated` timestamps.
+- **Rules go stale.** Consider adding `last_updated` timestamps so agents can detect staleness without a full review cycle.
 - **Too many domains.** Start with 2-3. Add when you genuinely have enough observations to seed rules.
-- **Hypotheses never get tested.** The before-ritual is the mechanism. If agents aren't scanning hypotheses before work, they're not testing them.
+- **Hypotheses never get tested.** The before-ritual alone is insufficient. The explicit evidence check at wrap (see above) and two-strike auto-archive are the actual mechanisms. Without them, hypotheses sit at zero evidence indefinitely.
 - **Knowledge entries are too vague.** "Things went wrong" is not knowledge. "Deploy failed because cloudflared resolves localhost to IPv6 and the container only bound IPv4" is knowledge.
 - **Nobody reads across entries.** Knowledge accumulates but patterns go unnoticed because each agent only sees its own session. The [memory synthesis](memory-synthesis.md) pass addresses this: a periodic review that reads across daily logs, digests, and domain files to surface patterns, flag contradictions, and identify promotion candidates that individual sessions miss.
+- **The digest becomes a report, not a trigger.** Flagging stale items is passive. The two-strike auto-archive makes the digest an active pruning mechanism. Without it, the stale candidates section grows every week and nothing happens.
