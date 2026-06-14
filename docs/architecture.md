@@ -126,7 +126,9 @@ Agents interact with the board via a CLI wrapper around the board tool's REST AP
 
 ### The Knowledge System
 
-A three-tier system that compounds learning across sessions. Shared by all orchestrators and agents.
+Two distinct knowledge layers serve different purposes:
+
+**Domain knowledge** (epistemic: earned through evidence)
 
 ```
 knowledge/
@@ -141,7 +143,21 @@ knowledge/
     └── knowledge.md
 ```
 
-Any orchestrator or agent can read and write to domain files directly. In-progress observations are captured in card comments; completed learnings are written to the appropriate domain file. See [knowledge-system.md](knowledge-system.md) for the full design.
+Any orchestrator or agent can read and write to domain files directly.  In-progress observations are captured in card comments; completed learnings are written to the appropriate domain file.
+
+**Estate knowledge** (factual: infrastructure state that is either correct or not)
+
+```
+ESTATE.md                          # Global: tooling, practices, shared infra
+estate/
+├── domain-a.md                    # Secrets paths, deploy targets, CI status
+└── domain-b.md                    # Board column IDs, third-party accounts
+Project CLAUDE.md files             # Inherit from global + relevant domain
+```
+
+Agents discover infrastructure facts during work and append them to a `## Pending` section in the relevant estate file.  The orchestrator curates Pending entries on session start: verifies, promotes to the canonical body, or rejects.  This write protocol prevents drift and ensures one person owns accuracy.
+
+The two layers are complementary.  Domain knowledge uses the observation → hypothesis → rule promotion cycle because product patterns need evidence.  Estate knowledge uses a Pending → curate cycle because infrastructure facts need verification, not repeated confirmation.  See [knowledge-system.md](knowledge-system.md) for both designs.
 
 ## Communication Flow
 

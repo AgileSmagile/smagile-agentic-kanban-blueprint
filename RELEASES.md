@@ -1,5 +1,37 @@
 # Release Notes
 
+## v1.10.0 — Estate knowledge system: shared infrastructure knowledge across agents
+
+**Release date:** 2026-06-14
+
+### What changed
+
+**1. Estate knowledge system** (`docs/knowledge-system.md`)
+- New section documenting shared infrastructure knowledge as a concern distinct from domain knowledge
+- Three-tier hierarchy: global estate file (applies to all agents), domain estate files (account-specific state), project instruction files (inherit from both)
+- Write protocol: agents append discoveries to a `## Pending` section; the orchestrator curates on session start (verify → promote or reject)
+- Explicit rationale for why infrastructure knowledge needs a different model from product knowledge: factual state needs verification, not repeated confirmation through a promotion cycle
+
+**2. Architecture update** (`docs/architecture.md`)
+- Knowledge System section now documents both layers: domain knowledge (epistemic, direct writes, promotion cycle) and estate knowledge (factual, Pending → curate cycle)
+- Inheritance model made explicit: agent reads three files (global estate, domain estate, project instructions) for full infrastructure context
+
+### Why this matters
+
+- **The knowledge system had a blind spot.**  Previous releases built a strong promotion cycle for product knowledge (observations → hypotheses → rules).  But infrastructure knowledge, the cross-cutting facts about deploy paths, secrets stores, board column IDs, and account mappings, had no prescribed home.  Agents either rediscovered it, assumed incorrectly, or routed questions through the orchestrator.  All three are waste.
+- **The orchestrator role now explicitly includes knowledge curation.**  The blueprint previously described the orchestrator as a work coordinator who also reviews knowledge for contradictions.  With the estate system, the orchestrator is also the editorial authority for infrastructure truth.  This is a genuine responsibility, not an add-on.
+- **The write protocol prevents wiki rot.**  Domain knowledge lets agents write directly because the promotion cycle self-corrects.  Infrastructure knowledge uses a gated write (Pending → curate) because a wrong infrastructure fact causes immediate damage.  The two models reflect genuinely different risk profiles.
+- **The "parent POM" pattern is now documented.**  The three-tier inheritance (global → domain → project) gives teams a template for organising operational knowledge that is cross-cutting but not universal.  A two-vault secrets setup matters to one domain's agents but is invisible to another's.  Domain estate files solve this without polluting the global layer.
+
+### Action for teams using this blueprint
+
+- **Create `ESTATE.md` in your orchestrator repo.**  Start with what every agent needs to know: secrets store paths, board CLI setup, deploy targets, CI pipeline locations.
+- **Create `estate/<domain>.md` for each product or service area.**  Include account-specific state: which secrets store, which board, which columns, which third-party integrations.
+- **Add inheritance blocks to project CLAUDE.md files.**  Point each project at the global estate file and its relevant domain file.  An agent should never need to ask "where is X?" if X is infrastructure.
+- **Add a `## Pending` section to each estate file.**  Train agents to append discoveries there, not to the curated body.  Add "review estate Pending sections" to the orchestrator's startup routine.
+
+---
+
 ## v1.9.0 — Skills system, regression gate, improved session wrap, and model drift lesson
 
 **Release date:** 2026-05-24

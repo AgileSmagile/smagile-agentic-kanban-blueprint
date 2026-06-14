@@ -164,6 +164,51 @@ If a hypothesis appears in the stale candidates section of two consecutive weekl
 
 The after-ritual asks vaguely "did you learn anything?" This is too easy to skip. Instead, pull the actual hypothesis list for the domain and ask specifically: "Did this session produce evidence for or against any of these?" The hypothesis text is right there — no memory required, no aspirational "track over next 5 sessions." This is the single most impactful change: it turns hypotheses from write-once artifacts into living questions that get revisited every session.
 
+## Shared Infrastructure Knowledge
+
+The knowledge system described above handles *product knowledge*: observations, hypotheses, and rules about the work itself.  There is a second class of knowledge that does not fit neatly into any single domain: infrastructure knowledge.
+
+Infrastructure knowledge is cross-cutting.  Which secrets store to use.  Which deploy path works.  Which accounts belong to which service.  Which board columns map to which IDs.  This information is critical for agents but irrelevant to the three-tier promotion cycle.  It does not start as an observation and get promoted to a rule.  It is either correct or it is not.
+
+Without a home for infrastructure knowledge, three failure modes emerge:
+
+1. **Rediscovery waste.**  Agents spend time finding things that have already been found by other agents in prior sessions.
+2. **Incorrect assumptions.**  An agent uses the wrong secrets store because nothing in its mandatory reading told it two stores existed.
+3. **Orchestrator as lookup table.**  Infrastructure questions route through the orchestrator or the PO, neither of whom should be serving as an information desk.
+
+### The estate knowledge model
+
+Infrastructure knowledge lives in a three-tier hierarchy, separate from the domain knowledge system:
+
+```
+ESTATE.md                          # Global: applies to every agent
+estate/
+├── domain-a.md                    # Domain-specific: accounts, deploy targets, CI
+├── domain-b.md                    #   board column IDs, third-party integrations
+└── domain-c.md
+Project CLAUDE.md files             # Leaf: inherits from global + relevant domain
+```
+
+- **ESTATE.md** (global parent): infrastructure, tooling, and practices that apply regardless of project.  The equivalent of a Maven parent POM.
+- **Domain files** (`estate/<domain>.md`): account-specific state for a particular product or service area.  Secrets vault paths, deploy targets, CI status, board column IDs.
+- **Project CLAUDE.md**: each project's instructions include an inheritance block pointing to the global parent and the relevant domain file.  An agent reads three files and has full infrastructure context.
+
+### The write protocol
+
+Agents discover infrastructure facts during normal work.  They should not edit the curated body directly.  Instead:
+
+1. **Agent appends to a `## Pending` section** in the relevant domain's estate file.
+2. **Agent posts a routing comment** on the card to notify the orchestrator (using the system's standard comment-routing convention).
+3. **Orchestrator reviews Pending on session start**: verifies accuracy, promotes to curated sections, or rejects.
+
+This is a pull-based knowledge flow.  Agents push raw observations; the orchestrator pulls them into the curated body on their own cadence.  The pattern mirrors the board itself: work enters a backlog (Pending), gets refined (curation), and is promoted (into curated sections).
+
+### Why separate from domain knowledge?
+
+Domain knowledge uses the observation → hypothesis → rule promotion cycle because product knowledge is *epistemic*: it starts uncertain and earns confidence through evidence.  Infrastructure knowledge is *factual*: the secrets store path either works or it does not.  Mixing the two dilutes the promotion cycle with entries that do not need 5 confirmations; they need one correct answer, verified once.
+
+The orchestrator's curation role is the key distinction.  In the domain knowledge system, agents write directly and the orchestrator reviews for contradictions.  In the estate knowledge system, agents write to Pending and the orchestrator curates inbound entries before they join the canonical body.  This prevents drift, contradiction, and the wiki rot problem where anyone can edit and nobody owns accuracy.
+
 ## Common Failure Modes
 
 - **Agents skip the before-ritual.** Fix: make it explicit in the startup instructions, not optional.
