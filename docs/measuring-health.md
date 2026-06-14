@@ -71,6 +71,23 @@ If you're still explaining the same things after 20 sessions, something in the p
 
 If you're mostly making decisions and reviewing output, the system is working as designed: agents handle the execution, you handle the judgment.
 
+## Automated health monitoring: heartbeat → board cards
+
+The signals above are human-checked.  For production systems with public endpoints, automated monitoring closes the gap between "something broke" and "someone noticed."
+
+The pattern is a heartbeat script that runs on a schedule (e.g. every 5 minutes via cron), checks each endpoint, and feeds failures back into the board system as cards:
+
+1. **Check each endpoint.**  A simple HTTP request with a timeout.  If it fails, retry once after a short delay to filter transient blips.
+2. **On first failure: create a board card.**  Title includes the service name and failure type.  Card goes into the Inbox column.  The agent or PO sees it on next board check.
+3. **On recovery: comment on the existing card.**  "Service recovered at [timestamp].  Downtime: [duration]."  The card can then be moved to Done or closed.
+4. **State-file deduplication.**  A state file per endpoint tracks whether the current state is "up" or "down."  This prevents creating a new card every 5 minutes for an ongoing outage.  The card is created on the transition from up to down; the comment is posted on the transition from down to up.
+
+The state files should live on persistent storage (not `/tmp`) so they survive reboots.  The script sources its board API key from the environment or the secrets manager, never hardcoded.
+
+**Why this matters for agentic systems:**  An agent that checks the board on startup and sees a "Service X down" card in Inbox can act on it autonomously: investigate, attempt a fix, or escalate with diagnostic information.  The monitoring feeds the board; the board feeds the agent.  No human needs to notice the outage and manually create a card.
+
+This is not a replacement for external uptime monitoring (UptimeRobot, Updown.io, etc.).  External monitors verify from outside your network.  A heartbeat script running on your own infrastructure verifies from inside.  Both are valuable; they catch different failures.
+
 ## A note on flow metrics
 
 The signals above are deliberately practical rather than metric-heavy.  That is intentional.

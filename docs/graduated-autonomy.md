@@ -107,7 +107,7 @@ For experienced operators with a complete hook suite in place.
 This is functionally equivalent to OpenClaw's YOLO mode but with explicit deny rules for destructive operations.  **Do not use this level without:**
 
 - `block-secrets.sh` (or equivalent) intercepting PreToolUse and PostToolUse
-- `block-after-breach.sh` (or equivalent) circuit-breaking the session on any detected secret exposure
+- A circuit-breaker hook that halts the session on any detected secret exposure (e.g. if `block-secrets.sh` fires a PostToolUse block, the circuit-breaker prevents the agent from continuing to use the compromised credential in subsequent calls)
 - `retry-loop-detector.sh` (or equivalent) catching brute-force failures
 - `flow-nudges.sh` (or equivalent) reinforcing flow discipline
 
@@ -146,7 +146,7 @@ The [security](security.md) documentation covers hook implementation in detail. 
 | Hook | What it catches | When to install |
 |---|---|---|
 | `block-secrets.sh` | Secret exposure in commands or output | Before Level 2 |
-| `block-after-breach.sh` | Continued operation after a detected breach | Before Level 2 |
+| Circuit-breaker (extend `block-secrets.sh`) | Continued operation after a detected breach | Before Level 2 |
 | `retry-loop-detector.sh` | Agents stuck in failure loops, burning tokens and context | Before Level 2 |
 | `flow-nudges.sh` | Drift from flow discipline (WIP, board updates, card creation) | Before Level 3 |
 | `precompact-reinject.sh` | Critical rules lost during context compaction | Before Level 3 |

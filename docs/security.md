@@ -350,6 +350,53 @@ This is why PostToolUse scanning is essential even with perfect PreToolUse block
 
 **Best practice:** Combine the hook with the instruction ("never display secrets"), the architecture-level practice (secrets in `pass`, not in files), and the pre-push scan. Layers compound.  Accept that no single layer is perfect; the combination is what makes the system trustworthy.
 
+### Secrets audit tooling
+
+As the system grows, secrets sprawl.  The same credential exists in `pass`, in a Cloudflare Pages environment variable, in a GitHub Actions secret, and maybe in a second `pass` store for a different product.  Nobody can answer "which environments have this secret?" without checking each one manually.
+
+The fix is a cross-environment presence matrix: a script that queries every secrets destination and reports which secrets exist where, without displaying values.
+
+```
+$ secrets-audit bfp
+Secret                    pass-bfp  CF Pages  GH (app)  GH (mobile)
+SUPABASE_URL              ✓         ✓         ✓         ✓
+SUPABASE_ANON_KEY         ✓         ✓         ✓         ✓
+SUPABASE_SERVICE_KEY      ✓         ✓         ✗         ✗
+STRIPE_SECRET_KEY         ✓         ✓         ✗         ✗
+RESEND_API_KEY            ✓         ✗         ✗         ✗
+```
+
+This tool should be run before creating or renaming any secret.  It prevents duplicate names, catches missing propagation, and makes rotation auditable.
+
+**Canonical secret naming** reinforces this.  Maintain a single file (e.g. `knowledge/secrets-canonical.md`) that maps every secret to its canonical name, which environments it should exist in, and any naming conventions.  Agents must derive new names from this file, not invent them ad hoc.  The naming conventions are simple: `SERVICE_PURPOSE` format, uppercase with underscores, no project prefixes unless the same service is used by multiple products.
+
+### Secrets rotation policy
+
+Secrets that never rotate are secrets waiting to be compromised.  A tiered rotation policy balances security with operational overhead:
+
+| Tier | Cadence | Examples |
+|------|---------|---------|
+| **Critical** | 90 days | PII encryption keys, payment provider secrets, database service keys with write access |
+| **High** | 180 days | API keys with elevated permissions, OAuth client secrets, webhook signing keys |
+| **Medium** | 365 days | Read-only API keys, monitoring tokens, CI/CD service accounts |
+| **Low** | On compromise only | Public-facing identifiers, non-sensitive config values |
+
+**Rotation procedure:**
+
+1. Generate the new credential in the upstream service
+2. Update `pass` (or your secrets manager) with the new value
+3. Run `sync-env` to propagate to runtime environments
+4. Verify each dependent service still works (not just the first one)
+5. Revoke the old credential
+6. Log the rotation with date and who performed it
+
+**Service-specific traps to watch for:**
+- Services with multiple integration points (e.g. a board tool used by n8n, a CLI, and a webhook) need all paths updated during rotation, not just the most obvious one
+- Some services support graceful rotation via a "previous key" mechanism.  Use it: set the new key as primary, keep the old key as fallback for in-flight requests, revoke the old key after a grace period
+- Encryption keys used for stored data cannot simply be rotated; the data must be re-encrypted.  These are the highest-risk rotations and should have a runbook
+
+**Automation:**  Track rotation dates and set reminders.  A board card created 90 days after the last Critical-tier rotation is a simple, low-cost enforcement mechanism.
+
 ### Recommendations
 
 - Use an encrypted secrets manager (`pass`, Vault, 1Password CLI) as the single source of truth
@@ -357,6 +404,38 @@ This is why PostToolUse scanning is essential even with perfect PreToolUse block
 - Include explicit "never display secrets" instructions in every agent's system prompt
 - Run pre-push scans for secret patterns
 - When a secret is exposed, rotate immediately; don't assume the exposure was limited
+- Run a secrets audit before creating or renaming any secret
+- Maintain a canonical secret naming file and enforce it
+- Assign a rotation tier to every secret and track rotation dates
+
+## Hook design principle: fail closed
+
+A hook that silently exits 0 on parse failure is equivalent to no hook at all.  If the JSON payload is malformed, if `node` is not on PATH, if the script hits an unexpected edge case, and the hook returns exit 0, the action proceeds unblocked.  Every protection the hook was supposed to enforce is silently disabled.
+
+This happened in production.  The `block-secrets.sh` script parsed JSON via `node` and fell back to `exit 0` on parse failure.  A malformed payload bypassed all secrets protection.  The fix was straightforward but the lesson is architectural:
+
+**PreToolUse hooks must fail closed.**  If parsing fails, if the environment is unexpected, if anything goes wrong, block the action.  A false positive (blocking a safe action) is visible and fixable.  A false negative (allowing a dangerous action) is invisible until damage is done.
+
+**PostToolUse hooks can fail open.**  These hooks process output after the action has already happened.  Blocking here means suppressing output, which is less damaging than allowing a dangerous command to execute.  A PostToolUse hook that fails and exits 0 means the output is shown to the agent unfiltered, which is the default behaviour anyway.
+
+Apply this to every hook you write:
+
+```bash
+# PreToolUse — fail closed
+{ read -r PARSED_DATA; } < <(parse_json "$INPUT") || {
+  # Parse failed — block the action
+  echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"BLOCKED: Hook parse failure — failing closed."}}'
+  exit 0
+}
+
+# PostToolUse — fail open
+{ read -r PARSED_DATA; } < <(parse_json "$INPUT") || {
+  # Parse failed — allow output through
+  exit 0
+}
+```
+
+The distinction is simple: PreToolUse guards a gate (fail closed = gate stays shut).  PostToolUse observes traffic (fail open = observation stops, traffic continues).
 
 ## Retry loop detection
 

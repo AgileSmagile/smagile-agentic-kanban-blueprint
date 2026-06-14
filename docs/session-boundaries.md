@@ -40,7 +40,9 @@ When a fresh session starts, the agent should self-orient and act. **The agent s
 
 6. **Declare intent and start.** Don't just brief the human on what you found. State what you intend to do about it: "I intend to resume card #42 because it's the oldest unblocked item in Doing. Starting now." If there's a question that needs the human's input, ask it alongside your intent, not instead of it. The human can redirect if needed, but the default is that the agent acts.
 
-This is the difference between an assistant and an autonomous agent. An assistant waits for instructions. An agent reads the situation, forms a plan, and declares its intent.
+This is the difference between an assistant and an autonomous agent.  An assistant waits for instructions.  An agent reads the situation, forms a plan, and declares its intent.
+
+In Claude Code, the startup routine can be encoded as a skill (e.g. `/lets-start`) that mirrors the wrap-up skill.  The agent invokes it on session start and works through each step: source environment, verify board access, check WIP age, identify focus, declare intent.  Like `/lets-wrap`, the skill is a forcing function: it makes the self-orientation explicit rather than hoping the agent remembers each step.
 
 ## Autonomy boundary: what you own
 
@@ -225,13 +227,55 @@ In `settings.json`:
 
 Create a placeholder at the snapshot path so the PostCompact read does not error in sessions where no compaction has yet occurred.
 
+## Structured handoff headers
+
+Prose handoff notes work for humans.  They are unreliable for agents, which need to parse specific fields to determine what to do next.  The fix is structured YAML frontmatter in handoff memory files:
+
+```yaml
+---
+phase: implementing
+card_id: 1224
+completed_this_session:
+  - Added retry logic with exponential backoff
+  - Updated tests for 3-attempt boundary
+decisions_made:
+  - Per-user rate limiting (not per-IP), confirmed by PO
+open_questions:
+  - Should /api/coaching have the same limits as /api/generate?
+next_action: Run tests, raise PR against main
+next_action_unchanged_count: 0
+---
+```
+
+The fields serve different consumers:
+- `phase` and `card_id` tell the next agent where to pick up
+- `completed_this_session` prevents re-doing work
+- `decisions_made` prevents re-asking questions the PO already answered
+- `open_questions` surfaces what still needs resolution
+- `next_action` is the single most important field: what should happen next
+
+### Convergence detection: the stuck-action trigger
+
+The `next_action_unchanged_count` field solves a specific failure mode: work that looks active but is not progressing.  If the same `next_action` appears in three consecutive session handoffs, the work is stuck.
+
+The orchestrator checks this during startup:
+
+1. Read each handoff memory file
+2. Compare `next_action` to the previous session's value
+3. If identical, increment `next_action_unchanged_count`
+4. If the count reaches 3, the action is stuck.  Post an escalation comment on the card: "STUCK: next_action unchanged for 3 sessions.  Escalating for unblock."
+
+This catches a category of waste that board metrics miss.  A card in Doing with regular session activity looks healthy on the board.  But if the next action never changes, the agent is either blocked on something it has not flagged, repeating the same failing approach, or the task is genuinely harder than the card description suggests.
+
+The escalation is mechanical, not judgemental.  Three sessions with the same next action is a signal, not a verdict.  The response might be: unblock the dependency, rephrase the task, split the card, or accept that this one genuinely takes longer and reset the counter.
+
 ## The handoff test
 
 After writing a card comment or knowledge entry, apply this test: if a completely fresh agent read this with zero prior context, could it continue the work or apply the learning correctly?
 
 If yes, the handoff will survive.
 
-If no, add the missing context. The 30 seconds you spend writing it now saves 10 minutes of confusion in the next session.
+If no, add the missing context.  The 30 seconds you spend writing it now saves 10 minutes of confusion in the next session.
 
 ## The wrap-up checklist
 

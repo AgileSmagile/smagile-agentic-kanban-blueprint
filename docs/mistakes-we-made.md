@@ -118,10 +118,12 @@ The product owner intervened: "Your job is not to pull work. Project agents fill
 
 **Fix forward:**
 - Added to agent guidelines: "A card with an empty or stub description must never be created"
-- Reframed card creation as a minimum-spec exercise: What, Why, Done When. If an agent can't write a meaningful "done when," the work isn't understood well enough; it should go to For Evaluation, not Ready
-- Added the principle: "The board is the only continuity mechanism across agent sessions. If the card doesn't carry the intent, the intent is lost."
+- Reframed card creation as a minimum-spec exercise: What, Why, Done When.  If an agent cannot write a meaningful "done when," the work is not understood well enough; it should go to For Evaluation, not Ready
+- Added the principle: "The board is the only continuity mechanism across agent sessions.  If the card doesn't carry the intent, the intent is lost."
+- **"Capture why you don't know" rule.**  If the what, why, or done-when is genuinely unknown at creation time, say so explicitly: "What: unclear; blocked on PO decision about scope.  Why: linked to initiative #805 but specific value not yet articulated.  Done-when: unknown until scope is confirmed."  This is materially different from leaving the field blank.  A blank field is ambiguous (was it forgotten? was it obvious? was it deliberately deferred?).  An explicit "unknown because X" tells the next agent what needs to happen before work can start.
+- **Mandatory initiative linking.**  Every card must link to a parent initiative via `[#parentID]` in the title.  The only exceptions are tech debt cards (which are their own justification) and automated monitoring items (which are created by scripts, not agents).  A card with no initiative link is a card with no strategic justification.  It might still be valid work, but the link forces the question: "why are we doing this?"
 
-**The lesson:** Context that feels obvious during creation is invisible after a session boundary. Every card is a message to a stranger.
+**The lesson:** Context that feels obvious during creation is invisible after a session boundary.  Every card is a message to a stranger.
 
 ## Knowledge system entries that were never verified
 

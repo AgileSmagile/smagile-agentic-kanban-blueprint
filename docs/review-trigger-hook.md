@@ -4,7 +4,7 @@
 
 The [cross-agent review triggers](quality-gates.md#cross-agent-review-triggers) define when agents must tag another agent before merging. But policy documentation is passive: agents have to remember to check it. When an agent is deep in implementation, the last thing on their mind is "should I have tagged someone?"
 
-Periodic reminders (like [flow nudges](flow-nudges.md)) don't solve this either. A generic "remember to tag TestSpecialist if you're touching auth" firing every 25 tool calls while an agent writes CSS is noise. It trains agents to ignore nudges.
+Periodic reminders (like [flow nudges](security.md#flow-nudges-silent-periodic-reminders)) don't solve this either. A generic "remember to tag TestSpecialist if you're touching auth" firing every 25 tool calls while an agent writes CSS is noise. It trains agents to ignore nudges.
 
 ## The Solution: Context-Aware Hook
 

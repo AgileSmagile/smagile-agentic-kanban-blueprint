@@ -40,7 +40,19 @@ The output is a synthesis entry written to `vault/logs/synthesis/YYYY-Www.md` (o
 
 **Anti-patterns.** Approaches that consistently lead to rework or blockers. "Cards that skip the acceptance criteria step have a 3x rework rate based on the last 10 sessions." These are hypothesis candidates if not already tracked.
 
-**Stale entries.** Knowledge entries referencing file paths, API endpoints, or architectural decisions that may have changed. The synthesis pass flags these for verification; it does not delete them.
+**Stale entries.** Knowledge entries referencing file paths, API endpoints, or architectural decisions that may have changed.  The synthesis pass flags these for verification; it does not delete them.
+
+### Staleness detection criteria
+
+Generic "check for staleness" is too vague to act on.  These specific thresholds give the synthesis pass concrete triggers:
+
+- **Hypotheses older than 30 days with fewer than 3 confirmations.**  A hypothesis that has been open for a month without accumulating evidence is either untestable (poorly framed), irrelevant (the system moved on), or invisible (agents are not checking for it during the before-ritual).  Flag for rephrasing, archival, or conversion to an explicit experiment.
+
+- **Rules older than 60 days without reference.**  A rule that no agent has cited, applied, or tested in 60 days may be stale.  It might still be valid but invisible because it covers a domain with low activity.  Or it might describe a pattern that no longer holds.  Flag for verification.
+
+- **Cross-domain contradictions.**  An observation in domain A that contradicts a rule in domain B.  These are invisible to individual agents because agents typically load one domain at a time.  The synthesis pass reads across domains and can spot them.
+
+These thresholds are starting points.  Adjust based on your system's cadence: a high-velocity project might use 14 days / 30 days; a slow-moving one might use 60 days / 120 days.  The principle is the same: knowledge that is not being referenced or tested is decaying.
 
 ### What synthesis does not do
 

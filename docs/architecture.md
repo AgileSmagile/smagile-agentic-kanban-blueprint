@@ -62,6 +62,20 @@ No orchestrator owns the board.  No orchestrator owns the knowledge system.  The
 
 **Exception: autonomous agents.** An agent with its own mandate (e.g. an autonomous revenue experiment) may have its own board, its own secrets store, and its own scope entirely. It shares the knowledge system and communication channels (so it can learn from and coordinate with the team) but its operational infrastructure is separate. This is deliberate: autonomy means owning your own resources, not borrowing someone else's.
 
+## Staging collision guard
+
+When multiple agents work in the same repository (even sequentially, via shared branches), git's staging area becomes a subtle concurrency hazard.  Agent A stages files, then Agent B's tool call runs before the commit, staging additional files.  Agent A commits, unknowingly including Agent B's changes.
+
+Three rules prevent this:
+
+1. **Stage and commit in a single shell call.**  `git add <files> && git commit -m "..."` in one Bash invocation.  Never stage in one tool call and commit in a separate one; the gap between them is where collisions happen.
+
+2. **Name files explicitly.**  Never use `git add .` or `git add -A`.  These sweep up whatever is in the working tree, including files staged by other processes, generated artefacts, or files an agent edited speculatively and decided not to keep.
+
+3. **Check before committing.**  If unexpected files appear in `git status` before a commit, investigate.  They may be another agent's in-progress work, a build artefact, or an accidentally created file.
+
+This is a mechanical discipline, not a judgement call.  It should be in every agent's operating instructions.
+
 ## How coordination works without a single coordinator
 
 If there's no single hub, how do the orchestrators avoid conflicting with each other?
@@ -102,6 +116,27 @@ An orchestrator might dispatch sub-agents (the CC orchestrator does), or it migh
 - Report back concisely: what was done, what's blocked, what needs a decision
 
 Sub-agents are **task-based, not persistent**. They're spun up for a card, do the work, and finish. The board carries state between sessions, not the agent's memory.
+
+#### Sub-agent resource guardrails
+
+Sub-agents (child agents spawned by an orchestrator or parent agent) can consume disproportionate time and tokens if left unconstrained.  A research sub-agent given a vague brief will exhaustively search the codebase, read every file, and return a 2000-line analysis when a 10-line answer was needed.  These guardrails prevent runaway consumption:
+
+**Timeout enforcement.**  Set explicit time limits per task type:
+- Research tasks: 5 minutes max
+- Code generation: 10 minutes max
+- Exploratory searches: 3 minutes max
+- Any task exceeding 10 minutes should be broken into smaller subtasks
+
+**Scope containment.**  Every sub-agent dispatch should specify:
+- A precise, bounded task (not "investigate the auth system" but "find which middleware file handles JWT validation")
+- An exact output format ("return the file path and line number, nothing else")
+- A limited search space ("look in `src/middleware/`, not the entire repo")
+
+**Synthesise-early pattern.**  Sub-agents should return findings as soon as the answer is clear, not exhaustively search every remaining possibility.  If the task is "find where rate limiting is configured" and the answer is found in the first file checked, return immediately.
+
+**Parallelism over depth.**  Prefer 3 focused parallel sub-agents over 1 broad sequential one.  Three agents searching three directories simultaneously finish faster and produce less noise than one agent searching the entire repo.
+
+**Kill criteria.**  If a sub-agent returns off-target results, do not re-spawn it with a broader scope.  Reassess the task.  Never retry with the same prompt; if it failed once, the prompt is the problem.
 
 ### Satellite Workspaces
 
@@ -184,7 +219,42 @@ The system this blueprint was extracted from runs on:
 - **Cloudflare**: DNS, tunnels (exposing self-hosted services publicly without open ports), Workers (edge functions), Access (Zero Trust policies)
 - **GitHub**: Code hosting, CI/CD via Actions
 
-This is one possible infrastructure shape. The multi-orchestrator pattern works with any combination of local, cloud, and self-hosted infrastructure. The requirement is shared access to the board and knowledge system, not co-location. See [hardware.md](hardware.md) for the self-hosting option.
+This is one possible infrastructure shape.  The multi-orchestrator pattern works with any combination of local, cloud, and self-hosted infrastructure.  The requirement is shared access to the board and knowledge system, not co-location.  See [hardware.md](hardware.md) for the self-hosting option.
+
+### CI and deployment are permanently separate
+
+GitHub Actions (or your CI tool) runs checks: lint, typecheck, tests, assertion locks.  It never deploys.  Deployment is a separate step, run from a different machine, via a dedicated script.
+
+This is a permanent architectural decision, not a billing workaround.  The reasons:
+
+- **Deterministic deploy paths.**  A deploy script on a known machine with known state is reproducible.  A deploy job in CI depends on runner availability, environment variables that may drift, and third-party action versions.
+- **ARM64 vs x86 build differences.**  If your production infrastructure runs on ARM (Raspberry Pi, ARM VMs), CI runners are typically x86.  Builds that work on the runner may fail on the deploy target.  Building on the target eliminates this class of failure.
+- **Free-tier conservation.**  CI minutes on free plans are finite.  Using them for deployment means CI and deployment compete for the same budget.  Separating them means CI always has capacity for checks.
+
+The pattern: CI runs on every push and PR.  If CI is green and the PR is merged, deployment is triggered separately (manually, via webhook, or via a deploy script that the merge process calls).
+
+### Version-controlling automation workflows
+
+If your system uses n8n, Zapier, Make, or any workflow automation tool, the workflow definitions are infrastructure.  They should be version-controlled alongside the orchestrator repo, not left as opaque state inside the automation tool's database.
+
+The pattern: export workflow definitions as JSON, store them in a directory (e.g. `n8n-workflows/`), and include a CLI wrapper for importing, activating, and deactivating workflows via the tool's API.  When a workflow changes, the JSON export is updated in the repo and committed.
+
+This gives you: git history showing what changed and when, the ability to restore a workflow after accidental deletion, and a diff-reviewable format for workflow changes that would otherwise be invisible clicks in a GUI.
+
+### Deploy commit drift detection
+
+In systems with multiple environments (pre-prod, production, staging), deployed state can silently drift from the repository.  A commit merges to main; pre-prod auto-deploys; production requires a manual dispatch.  Two weeks later, production is 15 commits behind and nobody noticed.
+
+A deploy status script that queries each environment's deployed commit SHA and compares it to the repo's HEAD makes this drift visible:
+
+```
+$ deploy-status
+Environment   Deployed SHA   HEAD SHA       Drift
+pre-prod      a1b2c3d        a1b2c3d        ✓ current
+production    e4f5g6h        a1b2c3d        ✗ 15 commits behind
+```
+
+Run this at session start or as part of the environment parity check in the wrap-up checklist (see [session-boundaries.md](session-boundaries.md)).  The agent sees the drift and can flag it or create a card for the promotion.
 
 ## Security Model
 

@@ -1,5 +1,86 @@
 # Release Notes
 
+## v1.11.0 — Operational hardening: 12 production patterns from the live estate
+
+**Release date:** 2026-06-14
+
+### What changed
+
+**1. Sub-agent resource guardrails** (`docs/architecture.md`)
+- Timeout enforcement per task type (research 5min, code gen 10min, exploratory 3min)
+- Scope containment rules: precise tasks, exact output format, limited search space
+- Synthesise-early pattern, parallelism-over-depth preference, kill criteria for off-target sub-agents
+
+**2. Hooks fail-closed design principle** (`docs/security.md`)
+- New section documenting the rule: PreToolUse hooks must fail closed on parse failure; PostToolUse hooks can fail open
+- Includes the production incident that drove this (silent exit 0 on malformed JSON disabled all secrets protection)
+- Code example showing the pattern for both hook types
+
+**3. Structured handoff headers + convergence detection** (`docs/session-boundaries.md`)
+- YAML frontmatter schema for handoff memory files: phase, card_id, completed_this_session, decisions_made, open_questions, next_action, next_action_unchanged_count
+- Convergence detection: if next_action is unchanged for 3 consecutive sessions, auto-escalate as stuck
+- `/lets-start` skill reference added to the startup routine section
+
+**4. Staging collision guard** (`docs/architecture.md`)
+- Three rules: stage and commit in a single shell call; name files explicitly (never `git add .`); check for unexpected staged files before committing
+- Prevents a class of multi-agent concurrency bugs in shared repos
+
+**5. Secrets audit tooling + canonical naming** (`docs/security.md`)
+- Cross-environment presence matrix pattern (which secrets exist in pass, CF Pages, GitHub, etc.)
+- Canonical secret naming file as a governance mechanism against sprawl
+- Pre-creation audit as a mandatory gate
+
+**6. Secrets rotation policy (tiered)** (`docs/security.md`)
+- Four-tier rotation cadence: Critical (90d), High (180d), Medium (365d), Low (on compromise)
+- 6-step rotation procedure with service-specific traps (multi-integration paths, graceful rotation, encryption key re-encryption)
+
+**7. Heartbeat monitoring → board cards** (`docs/measuring-health.md`)
+- Pattern for automated endpoint monitoring that creates board cards on failure and comments on recovery
+- State-file deduplication to prevent card flooding during sustained outages
+- Positioned as a complement to external uptime monitoring, not a replacement
+
+**8. Memory synthesis staleness criteria** (`docs/memory-synthesis.md`)
+- Concrete thresholds: hypotheses >30d with <3 confirmations, rules >60d without reference, cross-domain contradictions
+- Guidance on adjusting thresholds for different project cadences
+
+**9. Card quality enforcement** (`docs/mistakes-we-made.md`)
+- "Capture why you don't know" pattern: explicitly record unknown fields with reasons, rather than leaving blanks
+- Mandatory initiative linking via `[#parentID]` with documented exceptions (tech debt, automated monitoring)
+
+**10. CI/deployment permanent separation** (`docs/architecture.md`)
+- CI tools run checks only, never deployment.  Deployment is a separate step from a known machine.
+- Three reasons documented: deterministic deploy paths, ARM64/x86 build differences, free-tier conservation
+
+**11. n8n workflow version control** (`docs/architecture.md`)
+- Pattern for exporting workflow definitions as JSON, storing alongside the orchestrator repo, and managing via CLI
+- Gives git history, restore capability, and diff-reviewable workflow changes
+
+**12. Deploy commit drift detection** (`docs/architecture.md`)
+- Script pattern that compares deployed SHA per environment against repo HEAD
+- Makes environment drift visible at session start or wrap-up
+
+**13. Blueprint housekeeping**
+- Fixed broken cross-reference in `review-trigger-hook.md` (flow-nudges.md → security.md#flow-nudges)
+- Clarified `block-after-breach.sh` reference in `graduated-autonomy.md` (was a phantom script reference; now describes the circuit-breaker pattern as an extension of block-secrets.sh)
+- Added estate template file (`workspace/ESTATE.md`) for teams to copy
+- Added `/lets-start` skill reference to `session-boundaries.md`
+
+### Why this matters
+
+- **These are production patterns, not theoretical recommendations.**  Every item was extracted from the live smagile/BuildFlowPro estate after it proved its value (or after its absence caused a failure).  The fail-closed principle came from a real incident.  The convergence detection came from real stuck work.  The staging collision guard came from real corrupted commits.
+- **The blueprint now covers the full operational lifecycle.**  Previous releases covered the knowledge system, session boundaries, security, and quality gates.  This release fills the operational gaps: what happens when sub-agents run too long, when secrets sprawl, when handoffs stall, when environments drift, when hooks silently fail.
+- **The estate template makes adoption concrete.**  The v1.10.0 release told teams to create estate files.  This release gives them a template to copy.
+
+### Action for teams using this blueprint
+
+- **Install the fail-closed pattern in your hooks immediately.**  If your `block-secrets.sh` falls back to `exit 0` on parse failure, it is not protecting you.  Fix it now.
+- **Add structured YAML headers to your handoff memory files.**  The convergence detection (stuck-action trigger) requires the `next_action` and `next_action_unchanged_count` fields.
+- **Add sub-agent guardrails to your agent guidelines.**  Timeout enforcement and scope containment prevent the most common source of token waste.
+- **Copy `workspace/ESTATE.md` and fill in your infrastructure details.**  This is the starting template for the estate knowledge system introduced in v1.10.0.
+- **Classify your secrets by rotation tier.**  You do not need to rotate them all today.  You need to know which ones are Critical and set a reminder for 90 days.
+
+---
+
 ## v1.10.0 — Estate knowledge system: shared infrastructure knowledge across agents
 
 **Release date:** 2026-06-14
