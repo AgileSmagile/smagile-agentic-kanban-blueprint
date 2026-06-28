@@ -106,7 +106,30 @@ Each orchestrator:
 
 An orchestrator might dispatch sub-agents (the CC orchestrator does), or it might work directly (Clawdius handles research and advisory without spawning children). The pattern is flexible.
 
-### Sub-Agents
+### Three delegation modes (a maturity arc)
+
+Agents in this system have three ways to get specialist work done.  These form a maturity arc, not a menu.  Most agentic systems stop at the first or second mode and wonder why things degrade on longer tasks.
+
+**Mode 1: Inline.**  The agent does the work itself.  Fine for small tasks.  Falls over when complexity exceeds what one context window can hold.
+
+**Mode 2: Session-scoped specialists.**  The agent spawns a focused sub-agent inside its own session.  The specialist runs synchronously, returns a structured result, and is discarded.  Faster than async coordination.  But the specialist's output, reasoning, and tool calls all return to the parent agent's context window.  Spawn enough specialists and you have not saved context; you have distributed the compression across more actors while making it less visible.
+
+**Mode 3: External coordination.**  The agent tasks another agent through the board.  A comment with a routing prefix, a transient inbox card, a response on the originating card.  Both agents keep their full context windows.  The coordination layer (the board, the knowledge system, the communication protocol) carries state, not the model's memory.  Slower, but both parties retain clear heads.
+
+The key insight: **context window exhaustion is the real constraint, not model capability.**  Every sub-agent you spawn inside a session eats your available context.  Every result that returns, every reasoning chain, every tool call output shrinks the parent agent's working memory.  When the runtime compacts the conversation to make room, it does so silently; the agent does not know what it has forgotten.
+
+Mode 3 avoids this entirely.  Neither agent carries the other's reasoning.  Neither agent's memory is diminished by the other's work.  The trade-off is latency: async coordination is measured in minutes, not milliseconds.  For planned delivery work, which is what Kanban is for, this is acceptable.
+
+The practical question is when to use which:
+
+| Signal | Mode |
+|--------|------|
+| Task is small and within the agent's competence | Inline (mode 1) |
+| Task needs a different skill set but the result is compact (a report, a yes/no, a file path) | Session-scoped specialist (mode 2) |
+| Task is substantial, the result is large, or the parent agent's context is already under pressure | External coordination (mode 3) |
+| Task requires tools or access the parent agent does not have | External coordination (mode 3) |
+
+### Sub-agents (project delivery)
 
 - Dispatched by an orchestrator for focused delivery work
 - Each targets a specific project directory
@@ -116,6 +139,21 @@ An orchestrator might dispatch sub-agents (the CC orchestrator does), or it migh
 - Report back concisely: what was done, what's blocked, what needs a decision
 
 Sub-agents are **task-based, not persistent**. They're spun up for a card, do the work, and finish. The board carries state between sessions, not the agent's memory.
+
+### Session-scoped specialists
+
+Session-scoped specialists are a distinct category from project sub-agents.  They are ephemeral, synchronous, and disposable.  A project agent spawns one mid-task for a focused concern (security review, voice compliance, board health check), receives a structured result, and continues.
+
+Key composition principles:
+
+- **Scoped tools.**  Each specialist gets only the tools it needs.  A voice compliance checker gets read and search access.  A security reviewer gets read, search, and shell access.  No specialist gets write access to the codebase unless its role demands it.
+- **Model selection by task weight.**  Not every specialist needs the most capable model.  Board health checks can run on a lighter model.  Security reviews warrant a heavier one.  Match the model to the cognitive demand of the task.
+- **Structured output contracts.**  Every specialist returns results in a defined format.  The parent agent knows exactly what shape the response will take and can act on it mechanically.  No parsing ambiguity, no narrative to wade through.
+- **Turn limits.**  Specialists have a hard cap on how many turns they can take.  This prevents runaway exploration and forces the specialist to synthesise early.
+
+The distinction from project sub-agents matters: a sub-agent owns a card and progresses it through the board.  A session-scoped specialist does not touch the board; it provides a capability that the parent agent consumes and moves on.
+
+Think of it as the difference between delegating a task and asking a colleague to glance at something.  The task delegation (sub-agent) creates board-visible work.  The quick glance (specialist) is invisible to the board but improves the quality of the parent agent's output.
 
 #### Sub-agent resource guardrails
 

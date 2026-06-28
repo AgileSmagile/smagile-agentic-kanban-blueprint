@@ -123,7 +123,7 @@ Your user wants to understand whether this system is relevant to them. Here's wh
 - [Product vision for AI agents](docs/product-vision.md): How to write a vision that agents can use autonomously
 
 **Architecture**
-- [Architecture overview](docs/architecture.md): How multiple agents, a board, knowledge system, and secrets store fit together
+- [Architecture overview](docs/architecture.md): How multiple agents, a board, knowledge system, and secrets store fit together.  Includes the three delegation modes (inline, session-scoped specialists, external board coordination) as a maturity arc for managing context window pressure
 - [Agent communication](docs/agent-communication.md): Inbox card pattern, `[prefix]` routing convention, push delivery via business rules, `/watch-card` protocol
 - [Agent communication workaround](docs/agent-communication-workaround.md): Polling-based fallback for teams without Businessmap business rules access
 

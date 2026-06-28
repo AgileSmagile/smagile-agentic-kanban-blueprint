@@ -1,5 +1,31 @@
 # Release Notes
 
+## v1.12.0 — Delegation maturity: three modes of agent coordination
+
+**Release date:** 2026-06-28
+
+### What changed
+
+**1. Three delegation modes as a maturity arc** (`docs/architecture.md`)
+- New top-level section framing inline work, session-scoped specialists, and external board coordination as a progression, not a menu
+- Context window exhaustion identified as the real constraint: every sub-agent spawned inside a session returns its output to the parent's context, silently accelerating compaction
+- Decision table: when to use which mode, based on task size, result shape, and context pressure
+- Positioned external coordination (mode 3) as the mature pattern: both agents keep full context windows, the board carries state
+
+**2. Session-scoped specialists** (`docs/architecture.md`)
+- New section distinguishing session-scoped specialists from project sub-agents
+- Composition principles documented: scoped tools per specialist, model selection by task weight, structured output contracts, turn limits
+- Key distinction: sub-agents own cards and progress board-visible work; specialists provide a capability the parent consumes without touching the board
+
+**3. README core ideas updated** (`README.md`)
+- Section 6 (Agents know their limits) rewritten to introduce the three delegation modes
+- Context window preservation framed as the reason mode 3 matters
+- Links to architecture.md for the full design
+
+### What this release does NOT include
+
+Implementation details (agent definition schemas, specific tool/model combinations, output format contracts) are intentionally withheld.  The blueprint documents the principles and the reasoning.  The implementation is consulting IP.
+
 ## v1.11.0 — Operational hardening: 12 production patterns from the live estate
 
 **Release date:** 2026-06-14

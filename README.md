@@ -91,13 +91,21 @@ Within project scope, agents have full autonomy. Any card tagged with their proj
 
 ### 6. Agents know their limits -- and act on them
 
-A capable agent does not push through every problem alone. It recognises when it needs a specialist and pulls one in mid-task, rather than waiting for a handoff column or a human to intervene.
+A capable agent does not push through every problem alone.  It recognises when it needs a specialist and pulls one in mid-task, rather than waiting for a handoff column or a human to intervene.
 
-The trigger is the work itself. Certain signals -- touching authentication, performance regressions, low confidence in test coverage -- tell the agent it needs peer review before continuing. It tags the relevant specialist in a card comment and waits for a response. The card stays exactly where it is. No separate review column, no additional overhead for the person responsible for quality; the conversation happens on the originating card.
+The trigger is the work itself.  Certain signals -- touching authentication, performance regressions, low confidence in test coverage -- tell the agent it needs peer review before continuing.  It tags the relevant specialist in a card comment and waits for a response.  The card stays exactly where it is.  No separate review column, no additional overhead for the person responsible for quality; the conversation happens on the originating card.
 
-This matters because the alternative is worse than it looks. An agent that pushes through produces work that looks complete but carries hidden risk. An agent that always escalates to the human for every concern recreates the bottleneck you were trying to escape. Threshold-based specialist invocation is the middle path: the agent handles what it's confident in, escalates what it isn't, and the quality signal comes from the work rather than from a column move.
+This matters because the alternative is worse than it looks.  An agent that pushes through produces work that looks complete but carries hidden risk.  An agent that always escalates to the human for every concern recreates the bottleneck you were trying to escape.  Threshold-based specialist invocation is the middle path: the agent handles what it's confident in, escalates what it isn't, and the quality signal comes from the work rather than from a column move.
 
-The same logic applies to learning. Each completed task leaves behind a structured record -- what was hard, what to watch out for, which patterns hold for this codebase -- that the next agent working on something similar can read before starting. The board handles coordination across sessions; this handles accumulation of task-level knowledge that isn't general enough to go in the shared knowledge system but is too valuable to discard.
+There are three delegation modes, and they form a maturity arc:
+
+1. **Inline** -- the agent does the work itself.  Fine for small tasks.
+2. **Session-scoped specialists** -- the agent spawns a focused sub-agent inside its own session for a specific concern (security review, voice compliance, board health).  The specialist returns a structured result and is discarded.  Faster than async, but the result returns to the parent agent's context window and consumes memory.
+3. **External coordination** -- the agent tasks another agent through the board.  Both agents keep their full context windows.  The board carries state, not the model's memory.  Slower, but neither agent's working memory is diminished by the other's work.
+
+Most agentic systems stop at mode 2 and wonder why things degrade on longer tasks.  The context window is the real constraint, not model capability.  Every sub-agent you spawn inside a session eats your available context.  Mode 3 avoids this entirely: the coordination layer carries state so the agents do not have to.  See [architecture.md](docs/architecture.md) for the full design.
+
+The same logic applies to learning.  Each completed task leaves behind a structured record -- what was hard, what to watch out for, which patterns hold for this codebase -- that the next agent working on something similar can read before starting.  The board handles coordination across sessions; this handles accumulation of task-level knowledge that is not general enough to go in the shared knowledge system but is too valuable to discard.
 
 ### 7. Agents can talk to each other, without a shared context window
 
